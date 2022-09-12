@@ -11,19 +11,35 @@ transectNames = ['all']
 seasonList = ['JFM', 'JAS', 'ANN']
 #seasonList = ['ANN']
 
-############################## model files, run dirs
-rr = '/lcrc/group/e3sm/ac.mpetersen/scratch/anvil/'
-simName = ['20211006g.normal.WCYCL1850.ne30pg2_EC30to60E2r2.sigmaz.anvil/',
-  '211006h.sigmaz-hMin1.WCYCL1850.ne30pg2_EC30to60E2r2.anvil/']
-simShortName= ['z-level',
-  'sigma-z']
-meshfile = ['init_zlevel.nc','init_hMin1_14.nc']
-# extra simName = '20211006f.init8.WCYCL1850.ne30pg2_EC30to60E2r2.sigmaz.anvil/'; simShortName='sigma-z_8'
-subdir = 'yrs21-30/clim/mpas/avg/unmasked_EC30to60E2r2/'
+############################## model files, run dirs, from anvil:
+#rr = '/lcrc/group/e3sm/ac.mpetersen/scratch/anvil/'
+#simName = ['20211006g.normal.WCYCL1850.ne30pg2_EC30to60E2r2.sigmaz.anvil/',
+#  '211006h.sigmaz-hMin1.WCYCL1850.ne30pg2_EC30to60E2r2.anvil/']
+#simShortName= ['z-level',  'sigma-z']
+#meshfile = ['init_zlevel.nc','init_hMin1_14.nc']
+#subdir = 'yrs21-30/clim/mpas/avg/unmasked_EC30to60E2r2/'
 #climofile = 'mpaso_JFM_002101_003003_climo.nc'; seasonName = 'JFM'
 #climofile = 'mpaso_JAS_002107_003009_climo.nc'; seasonName = 'JAS'
+
+############################## model files, run dirs, from cori for NARRM
+rr = '/global/cscratch1/sd/katsmith/archive/E3SMv2/'
+
+#simName = ['v2.LR.historical', 'v2.NARRM.historical']
+#simShortName= ['v2.LR.historical', 'v2.NARRM.historical']
+#meshfile = ['input_files/v2.LR.historical_0301.mpaso.rst.1980-01-01_00000.nc',
+#            'input_files/v2.NARRM.historical_0301.mpaso.rst.1980-01-01_00000.nc']
+#subdir = ['/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_EC30to60E2r2/',
+#          '/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_WC14to60E2r3/']
+#maskfile = ['input_files/masks_v2.LR.historical.nc', 'input_files/masks_v2.NARRM.nc']
+
+simName = ['v2.NARRM.historical']
+simShortName= ['v2.NARRM.historical']
+meshfile = ['input_files/v2.NARRM.historical_0301.mpaso.rst.1980-01-01_00000.nc']
+subdir = ['/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_WC14to60E2r3/']
+maskfile = ['input_files/masks_v2.NARRM.nc']
+
+#climofile = 'mpaso_ANN_198001_201412_climo.nc'; seasonName = 'ANN'
 pre = 'timeMonthly_avg_'
-maskfile = 'mask.nc'
 casename = ''; 'E3SM60to30' # no spaces
 climoyearStart = 21
 climoyearEnd = 30 
@@ -114,7 +130,7 @@ sigma2contours = None
 
 # Load in MPAS mesh and transect mask file
 mesh = xr.open_dataset(meshfile[0])
-mask = xr.open_dataset(maskfile)
+mask = xr.open_dataset(maskfile[0])
 
 allTransects = decode_strings(mask.transectNames)
 if transectNames[0]=='all' or transectNames[0]=='StandardTransportSectionsRegionsGroup':
@@ -167,11 +183,12 @@ for iTransect in range(nTransects):
     # Load in T, S, and normalVelocity for each season, and plot them
     for season in seasonList:
         print('  season: ', season)
-        fig = plt.figure(figsize=figsize, dpi=figdpi)
         for iSim in range(len(simName)):
+            fig = plt.figure(figsize=figsize, dpi=figdpi)
             print('    sim: ', simShortName[iSim])
-            modeldir = rr + simName[iSim] + subdir
-            modelfile = glob.glob('{}/mpaso_{}_{:04d}??_{:04d}??_climo.nc'.format(
+            modeldir = rr + simName[iSim] + subdir[iSim]
+#climofile = 'mpaso_ANN_198001_201412_climo.nc'; seasonName = 'ANN'
+            modelfile = glob.glob('{}/mpaso_{}_*_climo.nc'.format(
                         modeldir, season, climoyearStart, climoyearEnd))[0]
             meshSim = xr.open_dataset(meshfile[iSim])
             maxLevelCell = meshSim.maxLevelCell.sel(nCells=transectCells-1).values
@@ -260,13 +277,13 @@ for iTransect in range(nTransects):
             cbar = plt.colorbar(cf, cax=cax, ticks=clevelsS, **kw)
             cbar.ax.tick_params(labelsize=12, labelcolor='black')
             cbar.set_label('psu', fontsize=12, fontweight='bold')
-            cf = ax.plot(x, y)
-            #if sigma2contours is not None:
-            #    cs = ax.contour(x, y, sigma2, sigma2contours, colors='k', linewidths=1.5)
-            #    cb = plt.clabel(cs, levels=sigma2contours, inline=True, inline_spacing=2, fmt='%2.1f', fontsize=9)
-            #if sigma0contours is not None:
-            #    cs = ax.contour(x, y, sigma0, sigma0contours, colors='k', linewidths=1.5)
-            #    cb = plt.clabel(cs, levels=sigma0contours, inline=True, inline_spacing=2, fmt='%5.2f', fontsize=8)
+            #cf = ax.plot(x, y)
+            if sigma2contours is not None:
+                cs = ax.contour(x, y, sigma2, sigma2contours, colors='k', linewidths=1.5)
+                cb = plt.clabel(cs, levels=sigma2contours, inline=True, inline_spacing=2, fmt='%2.1f', fontsize=9)
+            if sigma0contours is not None:
+                cs = ax.contour(x, y, sigma0, sigma0contours, colors='k', linewidths=1.5)
+                cb = plt.clabel(cs, levels=sigma0contours, inline=True, inline_spacing=2, fmt='%5.2f', fontsize=8)
             ax.set_ylim(0, zmax)
             ax.set_xlabel('Distance (km)', fontsize=12, fontweight='bold')
             ax.set_ylabel('Depth (m)', fontsize=12, fontweight='bold')
@@ -278,9 +295,9 @@ for iTransect in range(nTransects):
             ax.invert_yaxis()
 
             ncid.close()
-        # end for iSim in range(len(simName)):
-        figfile = figdir + transectName.replace(' ', '') + '_' + simShortName[0] + '_' + simShortName[1] + '_' + season + '.png'
-        plt.savefig(figfile, bbox_inches='tight')
-        plt.close()
+            # end for iSim in range(len(simName)):
+            figfile = figdir + transectName.replace(' ', '') + '_' + simShortName[iSim] + '_' + season + '.png'
+            plt.savefig(figfile, bbox_inches='tight')
+            plt.close()
     # end for season in [1]: #months:
 # end for iTransect in range(nTransects):
