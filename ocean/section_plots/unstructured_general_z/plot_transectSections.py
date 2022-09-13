@@ -8,8 +8,8 @@ transectNames = ['all']
 #transectNames = ['Faroe Bank Ch N','Faroe Bank Ch','Faroe Shetland Ch']
 
 ############################## months or seasons
-seasonList = ['JFM', 'JAS', 'ANN']
-#seasonList = ['ANN']
+#seasonList = ['JFM', 'JAS', 'ANN']
+seasonList = ['ANN']
 
 ############################## model files, run dirs, from anvil:
 #rr = '/lcrc/group/e3sm/ac.mpetersen/scratch/anvil/'
@@ -83,7 +83,8 @@ clevelsT = [-1.0, -0.5, 0.0, 0.5, 2.0, 2.5, 3.0, 3.5, 4.0, 6.0, 8., 10., 12.]
 #clevelsT = np.linspace(2.0, 6.0, 13)
 clevelsS = [31.0, 33.0, 33.5, 33.8, 34.2, 34.6, 34.8, 34.85, 34.9, 34.95, 35.0, 35.2, 35.5]
 #clevelsS = np.linspace(34.7, 35.2, 13)
-clevelsV = [-0.25, -0.2, -0.15, -0.1, -0.02, 0.0, 0.02, 0.1, 0.2, 0.3, 0.5]
+#clevelsV = [-0.25, -0.2, -0.15, -0.1, -0.02, 0.0, 0.02, 0.1, 0.2, 0.3, 0.5]
+clevelsV = np.linspace(-0.12,0.12, 13)
 colormapT = plt.get_cmap('RdBu_r')
 colormapS = cmocean.cm.haline
 colormapV = plt.get_cmap('RdBu_r')
@@ -217,10 +218,14 @@ for iTransect in range(nTransects):
             preT = pre + 'activeTracers_'
             temp = ncid.variables[preT + 'temperature'][0, transectCells-1, :]
             salt = ncid.variables[preT + 'salinity'][0, transectCells-1, :]
+            velocityMeridional = ncid.variables[pre + 'velocityMeridional'][0, transectCells-1, :]
+            velocityZonal = ncid.variables[pre + 'velocityZonal'][0, transectCells-1, :]
 
             # Mask T,S values that fall on land and topography
             temp = np.ma.masked_array(temp, ~cellMask)
             salt = np.ma.masked_array(salt, ~cellMask)
+            velocityMeridional = np.ma.masked_array(velocityMeridional, ~cellMask)
+            velocityZonal = np.ma.masked_array(velocityZonal, ~cellMask)
 
             # Compute sigma's
             SA = gsw.SA_from_SP(salt, pressure[np.newaxis, :], lonmean, latmean)
@@ -272,11 +277,14 @@ for iTransect in range(nTransects):
             #    colormapS.set_over(overColor)
             #    cnormS = mpl.colors.BoundaryNorm(clevelsS, colormapS.N)
                 # end new mrp
-            cf = ax.contourf(x, y, salt, cmap=colormapS, norm=cnormS, levels=clevelsS, extend='both')
+            # was salt, change to velocityMeridional
+            #cf = ax.contourf(x, y, salt, cmap=colormapS, norm=cnormS, levels=clevelsS, extend='both')
+            cf = ax.contourf(x, y, velocityMeridional, cmap=colormapV, norm=cnormV, levels=clevelsV, extend='both')
             cax, kw = mpl.colorbar.make_axes(ax, location='right', pad=0.05, shrink=0.9)
-            cbar = plt.colorbar(cf, cax=cax, ticks=clevelsS, **kw)
+            cbar = plt.colorbar(cf, cax=cax, ticks=clevelsV, **kw)
             cbar.ax.tick_params(labelsize=12, labelcolor='black')
-            cbar.set_label('psu', fontsize=12, fontweight='bold')
+            #cbar.set_label('psu', fontsize=12, fontweight='bold')
+            cbar.set_label('velocity', fontsize=12, fontweight='bold')
             #cf = ax.plot(x, y)
             if sigma2contours is not None:
                 cs = ax.contour(x, y, sigma2, sigma2contours, colors='k', linewidths=1.5)
@@ -296,7 +304,7 @@ for iTransect in range(nTransects):
 
             ncid.close()
             # end for iSim in range(len(simName)):
-            figfile = figdir + transectName.replace(' ', '') + '_' + simShortName[iSim] + '_' + season + '.png'
+            figfile = figdir + transectName.replace(' ', '') + '_v_' + simShortName[iSim] + '_' + season + '.png'
             plt.savefig(figfile, bbox_inches='tight')
             plt.close()
     # end for season in [1]: #months:
