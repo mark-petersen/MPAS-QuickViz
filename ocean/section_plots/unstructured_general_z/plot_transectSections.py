@@ -172,10 +172,37 @@ for iTransect in range(nTransects):
     for iCell in range(1, ntransectCells):
         dx = (lonCells[iCell]-lonCells[iCell-1]) * np.cos(0.5*(latCells[iCell]+latCells[iCell-1]))
         dy = latCells[iCell]-latCells[iCell-1]
-        dist.append(earthRadius * np.sqrt(dx**2 + dy**2))
+        norm = np.sqrt(dx**2 + dy**2)
+        dist.append(earthRadius * norm)
     dist = np.cumsum(dist)
     [x, y] = np.meshgrid(dist, z)
     x = x.T
+
+# compute weights for velocity perpendicular to the section:
+    xWt = np.zeros(ntransectCells)
+    yWt = np.zeros(ntransectCells)
+    for iCell in range(1, ntransectCells-1):
+        dx = (lonCells[iCell+1]-lonCells[iCell-1]) * np.cos(0.5*(latCells[iCell+1]+latCells[iCell-1]))
+        dy = latCells[iCell+1]-latCells[iCell-1]
+        norm = np.sqrt(dx**2 + dy**2)
+        xWt[iCell] = dy/norm
+        yWt[iCell] = dx/norm
+
+    iCell = 0
+    dx = (lonCells[iCell+1]-lonCells[iCell]) * np.cos(0.5*(latCells[iCell+1]+latCells[iCell]))
+    dy = latCells[iCell+1]-latCells[iCell]
+    norm = np.sqrt(dx**2 + dy**2)
+    xWt[iCell] = dy/norm
+    yWt[iCell] = dx/norm
+
+    iCell = ntransectCells-1
+    dx = (lonCells[iCell]-lonCells[iCell-1]) * np.cos(0.5*(latCells[iCell]+latCells[iCell-1]))
+    dy = latCells[iCell]-latCells[iCell-1]
+    norm = np.sqrt(dx**2 + dy**2)
+    xWt[iCell] = dy/norm
+    yWt[iCell] = dx/norm
+    print('xWt',xWt)
+    print('yWt',yWt)
     
     latmean = 180.0/np.pi*np.nanmean(latCells)
     lonmean = 180.0/np.pi*np.nanmean(lonCells)
@@ -184,7 +211,7 @@ for iTransect in range(nTransects):
     # Load in T, S, and normalVelocity for each season, and plot them
     for season in seasonList:
         print('  season: ', season)
-        for iSim in range(len(simName)):
+        for iSim in [0]: #range(len(simName)):
             fig = plt.figure(figsize=figsize, dpi=figdpi)
             print('    sim: ', simShortName[iSim])
             modeldir = rr + simName[iSim] + subdir[iSim]
@@ -220,6 +247,10 @@ for iTransect in range(nTransects):
             salt = ncid.variables[preT + 'salinity'][0, transectCells-1, :]
             velocityMeridional = ncid.variables[pre + 'velocityMeridional'][0, transectCells-1, :]
             velocityZonal = ncid.variables[pre + 'velocityZonal'][0, transectCells-1, :]
+            velocityNormal = np.zeros([ntransectCells,nVertLevels])
+            for iCell in range(ntransectCells):
+                for k in range(1,maxLevelCell[iCell]):
+                   velocityNormal[iCell,k] = xWt[iCell]*velocityZonal[iCell,k] + yWt[iCell]*velocityMeridional[iCell,k]
 
             # Mask T,S values that fall on land and topography
             temp = np.ma.masked_array(temp, ~cellMask)
@@ -279,7 +310,7 @@ for iTransect in range(nTransects):
                 # end new mrp
             # was salt, change to velocityMeridional
             #cf = ax.contourf(x, y, salt, cmap=colormapS, norm=cnormS, levels=clevelsS, extend='both')
-            cf = ax.contourf(x, y, velocityMeridional, cmap=colormapV, norm=cnormV, levels=clevelsV, extend='both')
+            cf = ax.contourf(x, y, velocityNormal, cmap=colormapV, norm=cnormV, levels=clevelsV, extend='both')
             cax, kw = mpl.colorbar.make_axes(ax, location='right', pad=0.05, shrink=0.9)
             cbar = plt.colorbar(cf, cax=cax, ticks=clevelsV, **kw)
             cbar.ax.tick_params(labelsize=12, labelcolor='black')
