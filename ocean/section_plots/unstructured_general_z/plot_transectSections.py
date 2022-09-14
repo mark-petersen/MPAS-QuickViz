@@ -8,8 +8,8 @@ transectNames = ['all']
 #transectNames = ['Faroe Bank Ch N','Faroe Bank Ch','Faroe Shetland Ch']
 
 ############################## months or seasons
-#seasonList = ['JFM', 'JAS', 'ANN']
-seasonList = ['ANN']
+seasonList = ['JFM', 'JAS', 'ANN']
+#seasonList = ['ANN']
 
 ############################## model files, run dirs, from anvil:
 #rr = '/lcrc/group/e3sm/ac.mpetersen/scratch/anvil/'
@@ -24,13 +24,13 @@ seasonList = ['ANN']
 ############################## model files, run dirs, from cori for NARRM
 rr = '/global/cscratch1/sd/katsmith/archive/E3SMv2/'
 
-#simName = ['v2.LR.historical', 'v2.NARRM.historical']
-#simShortName= ['v2.LR.historical', 'v2.NARRM.historical']
-#meshfile = ['input_files/v2.LR.historical_0301.mpaso.rst.1980-01-01_00000.nc',
-#            'input_files/v2.NARRM.historical_0301.mpaso.rst.1980-01-01_00000.nc']
-#subdir = ['/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_EC30to60E2r2/',
-#          '/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_WC14to60E2r3/']
-#maskfile = ['input_files/masks_v2.LR.historical.nc', 'input_files/masks_v2.NARRM.nc']
+simName = ['v2.LR.historical', 'v2.NARRM.historical']
+simShortName= ['v2.LR.historical', 'v2.NARRM.historical']
+meshfile = ['input_files/v2.LR.historical_0301.mpaso.rst.1980-01-01_00000.nc',
+            'input_files/v2.NARRM.historical_0301.mpaso.rst.1980-01-01_00000.nc']
+subdir = ['/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_EC30to60E2r2/',
+          '/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_WC14to60E2r3/']
+maskfile = ['input_files/masks_v2.LR.historical.nc', 'input_files/masks_v2.NARRM.nc']
 
 simName = ['v2.NARRM.historical']
 simShortName= ['v2.NARRM.historical']
@@ -38,7 +38,7 @@ meshfile = ['input_files/v2.NARRM.historical_0301.mpaso.rst.1980-01-01_00000.nc'
 subdir = ['/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_WC14to60E2r3/']
 maskfile = ['input_files/masks_v2.NARRM.nc']
 
-#climofile = 'mpaso_ANN_198001_201412_climo.nc'; seasonName = 'ANN'
+##climofile = 'mpaso_ANN_198001_201412_climo.nc'; seasonName = 'ANN'
 pre = 'timeMonthly_avg_'
 casename = ''; 'E3SM60to30' # no spaces
 climoyearStart = 21
@@ -73,7 +73,9 @@ earthRadius = 6367.44
 figdir = './verticalSections/{}'.format(casename)
 if not os.path.isdir(figdir):
     os.makedirs(figdir)
-figsize = (20, 12)
+#figsize = (8, 6) # OSNAP West only w colorbar
+#figsize = (6, 6) # OSNAP West only no colorbar
+figsize = (14, 6) # OSNAP East only
 figdpi = 300
 colorIndices0 = [0, 10, 28, 57, 85, 113, 125, 142, 155, 170, 198, 227, 242, 255]
 #clevelsT = [-2.0, -1.8, -1.5, -1.0, -0.5, 0.0, 0.5, 2.0, 4.0, 6.0, 8.0, 10., 12.]
@@ -84,7 +86,7 @@ clevelsT = [-1.0, -0.5, 0.0, 0.5, 2.0, 2.5, 3.0, 3.5, 4.0, 6.0, 8., 10., 12.]
 clevelsS = [31.0, 33.0, 33.5, 33.8, 34.2, 34.6, 34.8, 34.85, 34.9, 34.95, 35.0, 35.2, 35.5]
 #clevelsS = np.linspace(34.7, 35.2, 13)
 #clevelsV = [-0.25, -0.2, -0.15, -0.1, -0.02, 0.0, 0.02, 0.1, 0.2, 0.3, 0.5]
-clevelsV = np.linspace(-0.12,0.12, 13)
+clevelsV = np.linspace(-0.15,0.15, 31)
 colormapT = plt.get_cmap('RdBu_r')
 colormapS = cmocean.cm.haline
 colormapV = plt.get_cmap('RdBu_r')
@@ -118,7 +120,7 @@ elif len(clevelsS) - 1 != len(colorIndices0):
 colormapS = cols.ListedColormap(colormapS(colorIndices))
 colormapS.set_under(underColor)
 colormapS.set_over(overColor)
-colormapV = cols.ListedColormap(colormapV(colorIndices))
+#colormapV = cols.ListedColormap(colormapV(colorIndices))
 #
 cnormT = mpl.colors.BoundaryNorm(clevelsT, colormapT.N)
 cnormS = mpl.colors.BoundaryNorm(clevelsS, colormapS.N)
@@ -148,7 +150,8 @@ for k in range(1,nVertLevels):
 
 nTransects = len(transectNames)
 maxCells = mask.dims['maxCellsInTransect']
-for iTransect in range(nTransects):
+# 3 is OSNAP East, 4 is OSNAP West
+for iTransect in [3]: #range(nTransects):
     # Identify transect
     transectName = transectNames[iTransect]
     transectIndex = allTransects.index(transectName)
@@ -201,8 +204,8 @@ for iTransect in range(nTransects):
     norm = np.sqrt(dx**2 + dy**2)
     xWt[iCell] = dy/norm
     yWt[iCell] = dx/norm
-    print('xWt',xWt)
-    print('yWt',yWt)
+    #print('xWt',xWt)
+    #print('yWt',yWt)
     
     latmean = 180.0/np.pi*np.nanmean(latCells)
     lonmean = 180.0/np.pi*np.nanmean(lonCells)
@@ -250,7 +253,16 @@ for iTransect in range(nTransects):
             velocityNormal = np.zeros([ntransectCells,nVertLevels])
             for iCell in range(ntransectCells):
                 for k in range(1,maxLevelCell[iCell]):
-                   velocityNormal[iCell,k] = xWt[iCell]*velocityZonal[iCell,k] + yWt[iCell]*velocityMeridional[iCell,k]
+                    # choose straight meridional or combo:
+                    #velocityNormal[iCell,k] = xWt[iCell]*velocityZonal[iCell,k] + yWt[iCell]*velocityMeridional[iCell,k]
+                    velocityNormal[iCell,k] = velocityMeridional[iCell,k]
+# For OSNAP West, look at dx=1,dy=1, i.e. current directly east-southeastward
+                    #velocityNormal[iCell,k] = (-velocityZonal[iCell,k] + velocityMeridional[iCell,k])/np.sqrt(2)
+                    # nonlinear mapping to mimic https://www.nature.com/articles/s41467-021-23350-2/figures/1
+                    if velocityNormal[iCell,k]>0.1:
+                        velocityNormal[iCell,k] = 0.1 + 0.05/0.9*(velocityNormal[iCell,k] -0.1)
+                    elif velocityNormal[iCell,k]<-0.1:
+                        velocityNormal[iCell,k] = -0.1 + 0.05/0.9*(velocityNormal[iCell,k] +0.1)
 
             # Mask T,S values that fall on land and topography
             temp = np.ma.masked_array(temp, ~cellMask)
@@ -269,37 +281,42 @@ for iTransect in range(nTransects):
 
             # Plot sections
             #  T first
-            figtitle = '{} Temperature, {}, {} years={}-{}'.format(
-                       simShortName[iSim], transectName, season, climoyearStart, climoyearEnd)
-            ax = plt.subplot(2,2,iSim*2+1)
-            ax.set_facecolor('darkgrey')
-            cf = ax.contourf(x, y, temp, cmap=colormapT, norm=cnormT, levels=clevelsT, extend='both')
-            #cf = ax.pcolormesh(x, y, temp, cmap=colormapT, norm=cnormT)
-            cax, kw = mpl.colorbar.make_axes(ax, location='right', pad=0.05, shrink=0.9)
-            cbar = plt.colorbar(cf, cax=cax, ticks=clevelsT, **kw)
-            cbar.ax.tick_params(labelsize=12, labelcolor='black')
-            cbar.set_label('C$^\circ$', fontsize=12, fontweight='bold')
-            if sigma2contours is not None:
-                cs = ax.contour(x, y, sigma2, sigma2contours, colors='k', linewidths=1.5)
-                cb = plt.clabel(cs, levels=sigma2contours, inline=True, inline_spacing=2, fmt='%2.1f', fontsize=9)
-            if sigma0contours is not None:
-                cs = ax.contour(x, y, sigma0, sigma0contours, colors='k', linewidths=1.5)
-                cb = plt.clabel(cs, levels=sigma0contours, inline=True, inline_spacing=2, fmt='%5.2f', fontsize=8)
-            ax.set_ylim(0, zmax)
-            ax.set_xlabel('Distance (km)', fontsize=12, fontweight='bold')
-            ax.set_ylabel('Depth (m)', fontsize=12, fontweight='bold')
-            ax.set_title(figtitle, fontsize=12, fontweight='bold')
-            ax.annotate('lat={:5.2f}'.format(180.0/np.pi*latCells[0]), xy=(0, -0.1), xycoords='axes fraction', ha='center', va='bottom')
-            ax.annotate('lon={:5.2f}'.format(180.0/np.pi*lonCells[0]), xy=(0, -0.15), xycoords='axes fraction', ha='center', va='bottom')
-            ax.annotate('lat={:5.2f}'.format(180.0/np.pi*latCells[-1]), xy=(1, -0.1), xycoords='axes fraction', ha='center', va='bottom')
-            ax.annotate('lon={:5.2f}'.format(180.0/np.pi*lonCells[-1]), xy=(1, -0.15), xycoords='axes fraction', ha='center', va='bottom')
-            ax.invert_yaxis()
+            #figtitle = '{} Temperature, {}, {} years={}-{}'.format(
+            #           simShortName[iSim], transectName, season, climoyearStart, climoyearEnd)
+            #ax = plt.subplot(2,2,iSim*2+1)
+            #ax.set_facecolor('darkgrey')
+            #cf = ax.contourf(x, y, temp, cmap=colormapT, norm=cnormT, levels=clevelsT, extend='both')
+            ##cf = ax.pcolormesh(x, y, temp, cmap=colormapT, norm=cnormT)
+            #cax, kw = mpl.colorbar.make_axes(ax, location='right', pad=0.05, shrink=0.9)
+            #cbar = plt.colorbar(cf, cax=cax, ticks=clevelsT, **kw)
+            #cbar.ax.tick_params(labelsize=12, labelcolor='black')
+            #cbar.set_label('C$^\circ$', fontsize=12, fontweight='bold')
+            #if sigma2contours is not None:
+            #    cs = ax.contour(x, y, sigma2, sigma2contours, colors='k', linewidths=1.5)
+            #    cb = plt.clabel(cs, levels=sigma2contours, inline=True, inline_spacing=2, fmt='%2.1f', fontsize=9)
+            #if sigma0contours is not None:
+            #    cs = ax.contour(x, y, sigma0, sigma0contours, colors='k', linewidths=1.5)
+            #    cb = plt.clabel(cs, levels=sigma0contours, inline=True, inline_spacing=2, fmt='%5.2f', fontsize=8)
+            #!ax.set_ylim(0, zmax)
+            #ax.set_ylim(0, 4000)
+            #ax.set_xlabel('Distance (km)', fontsize=12, fontweight='bold')
+            #ax.set_ylabel('Depth (m)', fontsize=12, fontweight='bold')
+            #ax.set_title(figtitle, fontsize=12, fontweight='bold')
+            #ax.annotate('lat={:5.2f}'.format(180.0/np.pi*latCells[0]), xy=(0, -0.1), xycoords='axes fraction', ha='center', va='bottom')
+            #ax.annotate('lon={:5.2f}'.format(180.0/np.pi*lonCells[0]), xy=(0, -0.15), xycoords='axes fraction', ha='center', va='bottom')
+            #ax.annotate('lat={:5.2f}'.format(180.0/np.pi*latCells[-1]), xy=(1, -0.1), xycoords='axes fraction', ha='center', va='bottom')
+            #ax.annotate('lon={:5.2f}'.format(180.0/np.pi*lonCells[-1]), xy=(1, -0.15), xycoords='axes fraction', ha='center', va='bottom')
+            #ax.invert_yaxis()
 
-            #  then S
-            figtitle = '{} Salinity, {}, {} years={}-{}'.format(
-                       simShortName[iSim], transectName, season, climoyearStart, climoyearEnd)
-            ax = plt.subplot(2,2,iSim*2+2)
-            ax.set_facecolor('darkgrey')
+            #  then S or velocity
+            #figtitle = '{} Salinity, {}, {} years={}-{}'.format(
+            #           simShortName[iSim], transectName, season, climoyearStart, climoyearEnd)
+            figtitle = '{} {}, {}'.format(
+                       simShortName[iSim], transectName, season)
+            #ax = plt.subplot(2,2,iSim*2+2)
+            ax = plt.subplot(1,1,1)
+            #ax.set_facecolor('darkgrey')
+            ax.set_facecolor('k')
             # new mrp for colormap
             #if iSim<3: #==1:
             #    clevelsS = np.linspace(np.ma.min(salt), np.ma.max(salt), 13)
@@ -311,8 +328,14 @@ for iTransect in range(nTransects):
             # was salt, change to velocityMeridional
             #cf = ax.contourf(x, y, salt, cmap=colormapS, norm=cnormS, levels=clevelsS, extend='both')
             cf = ax.contourf(x, y, velocityNormal, cmap=colormapV, norm=cnormV, levels=clevelsV, extend='both')
+            #cf = ax.contourf(x, y, velocityZonal, cmap=colormapV, norm=cnormV, levels=clevelsV, extend='both')
             cax, kw = mpl.colorbar.make_axes(ax, location='right', pad=0.05, shrink=0.9)
-            cbar = plt.colorbar(cf, cax=cax, ticks=clevelsV, **kw)
+            clevelVTicks = np.linspace(-0.14,0.14, 15)
+            cbar = plt.colorbar(cf, cax=cax, ticks=clevelVTicks, **kw)
+            yticklabelsV = np.round(np.linspace(-0.14,0.14, 15),2)
+            yticklabelsV[0:2] = [-0.8,-0.4]
+            yticklabelsV[13:15] = [0.4,0.8]
+            cbar.set_ticklabels(yticklabelsV)
             cbar.ax.tick_params(labelsize=12, labelcolor='black')
             #cbar.set_label('psu', fontsize=12, fontweight='bold')
             cbar.set_label('velocity', fontsize=12, fontweight='bold')
@@ -323,7 +346,9 @@ for iTransect in range(nTransects):
             if sigma0contours is not None:
                 cs = ax.contour(x, y, sigma0, sigma0contours, colors='k', linewidths=1.5)
                 cb = plt.clabel(cs, levels=sigma0contours, inline=True, inline_spacing=2, fmt='%5.2f', fontsize=8)
-            ax.set_ylim(0, zmax)
+            #ax.set_ylim(0, zmax)
+            ax.set_ylim(0, 4000)
+            #ax.set_xlim(0, 2400) # OSNAP West only, actually, dont use
             ax.set_xlabel('Distance (km)', fontsize=12, fontweight='bold')
             ax.set_ylabel('Depth (m)', fontsize=12, fontweight='bold')
             ax.set_title(figtitle, fontsize=12, fontweight='bold')
