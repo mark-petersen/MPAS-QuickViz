@@ -9,7 +9,7 @@ transectNames = ['all']
 
 ############################## months or seasons
 seasonList = ['JFM', 'JAS', 'ANN']
-#seasonList = ['ANN']
+seasonList = ['ANN']
 
 ############################## model files, run dirs, from anvil:
 #rr = '/lcrc/group/e3sm/ac.mpetersen/scratch/anvil/'
@@ -24,13 +24,13 @@ seasonList = ['JFM', 'JAS', 'ANN']
 ############################## model files, run dirs, from cori for NARRM
 rr = '/global/cscratch1/sd/katsmith/archive/E3SMv2/'
 
-simName = ['v2.LR.historical', 'v2.NARRM.historical']
-simShortName= ['v2.LR.historical', 'v2.NARRM.historical']
-meshfile = ['input_files/v2.LR.historical_0301.mpaso.rst.1980-01-01_00000.nc',
-            'input_files/v2.NARRM.historical_0301.mpaso.rst.1980-01-01_00000.nc']
-subdir = ['/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_EC30to60E2r2/',
-          '/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_WC14to60E2r3/']
-maskfile = ['input_files/masks_v2.LR.historical.nc', 'input_files/masks_v2.NARRM.nc']
+#simName = ['v2.LR.historical', 'v2.NARRM.historical']
+#simShortName= ['v2.LR.historical', 'v2.NARRM.historical']
+#meshfile = ['input_files/v2.LR.historical_0301.mpaso.rst.1980-01-01_00000.nc',
+#            'input_files/v2.NARRM.historical_0301.mpaso.rst.1980-01-01_00000.nc']
+#subdir = ['/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_EC30to60E2r2/',
+#          '/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_WC14to60E2r3/']
+#maskfile = ['input_files/masks_v2.LR.historical.nc', 'input_files/masks_v2.NARRM.nc']
 
 simName = ['v2.NARRM.historical']
 simShortName= ['v2.NARRM.historical']
@@ -173,11 +173,11 @@ for iTransect in [3]: #range(nTransects):
 
     dist = [0]
     for iCell in range(1, ntransectCells):
-        dx = (lonCells[iCell]-lonCells[iCell-1]) * np.cos(0.5*(latCells[iCell]+latCells[iCell-1]))
-        dy = latCells[iCell]-latCells[iCell-1]
+        dx = (lonCells[iCell]-lonCells[0]) * np.cos(0.5*(latCells[iCell]+latCells[0]))
+        dy = latCells[iCell]-latCells[0]
         norm = np.sqrt(dx**2 + dy**2)
-        dist.append(earthRadius * norm)
-    dist = np.cumsum(dist)
+        length = max(earthRadius * norm, dist[iCell-1])
+        dist.append(length)
     [x, y] = np.meshgrid(dist, z)
     x = x.T
 
@@ -348,7 +348,7 @@ for iTransect in [3]: #range(nTransects):
                 cb = plt.clabel(cs, levels=sigma0contours, inline=True, inline_spacing=2, fmt='%5.2f', fontsize=8)
             #ax.set_ylim(0, zmax)
             ax.set_ylim(0, 4000)
-            #ax.set_xlim(0, 2400) # OSNAP West only, actually, dont use
+            ax.set_xlim(0, 2200) # OSNAP West only, actually, dont use
             ax.set_xlabel('Distance (km)', fontsize=12, fontweight='bold')
             ax.set_ylabel('Depth (m)', fontsize=12, fontweight='bold')
             ax.set_title(figtitle, fontsize=12, fontweight='bold')
