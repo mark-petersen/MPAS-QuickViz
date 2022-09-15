@@ -8,7 +8,7 @@ transectNames = ['all']
 #transectNames = ['Faroe Bank Ch N','Faroe Bank Ch','Faroe Shetland Ch']
 
 ############################## months or seasons
-seasonList = ['JFM', 'JAS', 'ANN']
+#seasonList = ['JFM', 'JAS', 'ANN']
 seasonList = ['ANN']
 
 ############################## model files, run dirs, from anvil:
@@ -36,6 +36,14 @@ simName = ['v2.NARRM.historical']
 simShortName= ['v2.NARRM.historical']
 meshfile = ['input_files/v2.NARRM.historical_0301.mpaso.rst.1980-01-01_00000.nc']
 subdir = ['/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_WC14to60E2r3/']
+maskfile = ['input_files/masks_v2.NARRM.nc']
+
+rr='/global/cscratch1/sd/ethomas/MPAS_analysis/Q4_metric/'
+
+simName = ['Interface_piControl_151-200']
+simShortName= ['v2.NARRM.PI']
+meshfile = ['input_files/v2.NARRM.historical_0301.mpaso.rst.1980-01-01_00000.nc']
+subdir = ['/clim/mpas/avg/unmasked_WC14to60E2r3/']
 maskfile = ['input_files/masks_v2.NARRM.nc']
 
 ##climofile = 'mpaso_ANN_198001_201412_climo.nc'; seasonName = 'ANN'
@@ -219,8 +227,10 @@ for iTransect in [3]: #range(nTransects):
             print('    sim: ', simShortName[iSim])
             modeldir = rr + simName[iSim] + subdir[iSim]
 #climofile = 'mpaso_ANN_198001_201412_climo.nc'; seasonName = 'ANN'
+            print('modeldir, season',modeldir, season)
+
             modelfile = glob.glob('{}/mpaso_{}_*_climo.nc'.format(
-                        modeldir, season, climoyearStart, climoyearEnd))[0]
+                        modeldir, season))[0]
             meshSim = xr.open_dataset(meshfile[iSim])
             maxLevelCell = meshSim.maxLevelCell.sel(nCells=transectCells-1).values
             xr.Dataset.close(meshSim)
