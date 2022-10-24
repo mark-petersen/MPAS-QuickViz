@@ -5,55 +5,35 @@ given a certain transect mask
 """
 ############################## transects
 transectNames = ['all']
-#transectNames = ['Faroe Bank Ch N','Faroe Bank Ch','Faroe Shetland Ch']
 
 ############################## months or seasons
 seasonList = ['JFM', 'JAS', 'ANN']
-#seasonList = ['ANN']
-
-############################## model files, run dirs, from anvil:
-#rr = '/lcrc/group/e3sm/ac.mpetersen/scratch/anvil/'
-#simName = ['20211006g.normal.WCYCL1850.ne30pg2_EC30to60E2r2.sigmaz.anvil/',
-#  '211006h.sigmaz-hMin1.WCYCL1850.ne30pg2_EC30to60E2r2.anvil/']
-#simShortName= ['z-level',  'sigma-z']
-#meshfile = ['init_zlevel.nc','init_hMin1_14.nc']
-#subdir = 'yrs21-30/clim/mpas/avg/unmasked_EC30to60E2r2/'
-#climofile = 'mpaso_JFM_002101_003003_climo.nc'; seasonName = 'JFM'
-#climofile = 'mpaso_JAS_002107_003009_climo.nc'; seasonName = 'JAS'
 
 ############################## model files, run dirs, from cori for NARRM
+### choose this one for the NARRM low resolution:
 rr = '/global/cscratch1/sd/katsmith/archive/E3SMv2/'
+simName = ['v2.LR.historical']
+simShortName= ['v2.LR.historical']
+meshfile = ['input_files/v2.LR.historical_0301.mpaso.rst.1980-01-01_00000.nc']
+subdir = ['/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_EC30to60E2r2/']
+maskfile = ['input_files/masks_v2.LR.historical.nc']
 
-#simName = ['v2.LR.historical', 'v2.NARRM.historical']
-#simShortName= ['v2.LR.historical', 'v2.NARRM.historical']
-#meshfile = ['input_files/v2.LR.historical_0301.mpaso.rst.1980-01-01_00000.nc',
-#            'input_files/v2.NARRM.historical_0301.mpaso.rst.1980-01-01_00000.nc']
-#subdir = ['/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_EC30to60E2r2/',
-#          '/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_WC14to60E2r3/']
-#maskfile = ['input_files/masks_v2.LR.historical.nc', 'input_files/masks_v2.NARRM.nc']
-
+### choose this one for the NARRM historical:
+rr = '/global/cscratch1/sd/katsmith/archive/E3SMv2/'
 simName = ['v2.NARRM.historical']
 simShortName= ['v2.NARRM.historical']
 meshfile = ['input_files/v2.NARRM.historical_0301.mpaso.rst.1980-01-01_00000.nc']
 subdir = ['/0301/post/analysis/mpas_analysis/ts_1980-2014_climo_1980-2014/clim/mpas/avg/unmasked_WC14to60E2r3/']
 maskfile = ['input_files/masks_v2.NARRM.nc']
 
+### choose this one for the NARRM historical:
 rr='/global/cscratch1/sd/ethomas/MPAS_analysis/Q4_metric/'
-
 simName = ['Interface_piControl_151-200']
 simShortName= ['v2.NARRM.PI']
 meshfile = ['input_files/v2.NARRM.historical_0301.mpaso.rst.1980-01-01_00000.nc']
 subdir = ['/clim/mpas/avg/unmasked_WC14to60E2r3/']
 maskfile = ['input_files/masks_v2.NARRM.nc']
 
-##climofile = 'mpaso_ANN_198001_201412_climo.nc'; seasonName = 'ANN'
-pre = 'timeMonthly_avg_'
-casename = ''; 'E3SM60to30' # no spaces
-climoyearStart = 21
-climoyearEnd = 30 
-
-############################## variables
-# not added yet
 
 ############################## contours
 sigma0contours = [24.0, 25.0, 26.0, 27.0, 27.2, 27.4, 27.6, 27.7, 27.75, 27.8, 27.82,  27.84, 27.86, 27.87, 27.88, 27.9, 27.95, 28.0, 28.05]
@@ -78,7 +58,7 @@ import gsw
 earthRadius = 6367.44
 
 # Figure details
-figdir = './verticalSections/{}'.format(casename)
+figdir = './verticalSections/'
 if not os.path.isdir(figdir):
     os.makedirs(figdir)
 #figsize = (8, 6) # OSNAP West only w colorbar
@@ -218,6 +198,7 @@ for iTransect in [4]: #range(nTransects):
     latmean = 180.0/np.pi*np.nanmean(latCells)
     lonmean = 180.0/np.pi*np.nanmean(lonCells)
     pressure = gsw.p_from_z(-z, latmean)
+    pre = 'timeMonthly_avg_'
 
     # Load in T, S, and normalVelocity for each season, and plot them
     for season in seasonList:
