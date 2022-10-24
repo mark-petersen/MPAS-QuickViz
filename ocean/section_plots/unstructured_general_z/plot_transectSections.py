@@ -8,8 +8,8 @@ transectNames = ['all']
 #transectNames = ['Faroe Bank Ch N','Faroe Bank Ch','Faroe Shetland Ch']
 
 ############################## months or seasons
-#seasonList = ['JFM', 'JAS', 'ANN']
-seasonList = ['ANN']
+seasonList = ['JFM', 'JAS', 'ANN']
+#seasonList = ['ANN']
 
 ############################## model files, run dirs, from anvil:
 #rr = '/lcrc/group/e3sm/ac.mpetersen/scratch/anvil/'
@@ -82,8 +82,8 @@ figdir = './verticalSections/{}'.format(casename)
 if not os.path.isdir(figdir):
     os.makedirs(figdir)
 #figsize = (8, 6) # OSNAP West only w colorbar
-#figsize = (6, 6) # OSNAP West only no colorbar
-figsize = (14, 6) # OSNAP East only
+figsize = (6, 6) # OSNAP West only no colorbar
+#figsize = (14, 6) # OSNAP East only
 figdpi = 300
 colorIndices0 = [0, 10, 28, 57, 85, 113, 125, 142, 155, 170, 198, 227, 242, 255]
 #clevelsT = [-2.0, -1.8, -1.5, -1.0, -0.5, 0.0, 0.5, 2.0, 4.0, 6.0, 8.0, 10., 12.]
@@ -159,7 +159,7 @@ for k in range(1,nVertLevels):
 nTransects = len(transectNames)
 maxCells = mask.dims['maxCellsInTransect']
 # 3 is OSNAP East, 4 is OSNAP West
-for iTransect in [3]: #range(nTransects):
+for iTransect in [4]: #range(nTransects):
     # Identify transect
     transectName = transectNames[iTransect]
     transectIndex = allTransects.index(transectName)
@@ -265,9 +265,9 @@ for iTransect in [3]: #range(nTransects):
                 for k in range(1,maxLevelCell[iCell]):
                     # choose straight meridional or combo:
                     #velocityNormal[iCell,k] = xWt[iCell]*velocityZonal[iCell,k] + yWt[iCell]*velocityMeridional[iCell,k]
-                    velocityNormal[iCell,k] = velocityMeridional[iCell,k]
+                    #velocityNormal[iCell,k] = velocityMeridional[iCell,k]
 # For OSNAP West, look at dx=1,dy=1, i.e. current directly east-southeastward
-                    #velocityNormal[iCell,k] = (-velocityZonal[iCell,k] + velocityMeridional[iCell,k])/np.sqrt(2)
+                    velocityNormal[iCell,k] = (-velocityZonal[iCell,k] + velocityMeridional[iCell,k])/np.sqrt(2)
                     # nonlinear mapping to mimic https://www.nature.com/articles/s41467-021-23350-2/figures/1
                     if velocityNormal[iCell,k]>0.1:
                         velocityNormal[iCell,k] = 0.1 + 0.05/0.9*(velocityNormal[iCell,k] -0.1)
@@ -338,27 +338,26 @@ for iTransect in [3]: #range(nTransects):
             # was salt, change to velocityMeridional
             #cf = ax.contourf(x, y, salt, cmap=colormapS, norm=cnormS, levels=clevelsS, extend='both')
             cf = ax.contourf(x, y, velocityNormal, cmap=colormapV, norm=cnormV, levels=clevelsV, extend='both')
-            #cf = ax.contourf(x, y, velocityZonal, cmap=colormapV, norm=cnormV, levels=clevelsV, extend='both')
-            cax, kw = mpl.colorbar.make_axes(ax, location='right', pad=0.05, shrink=0.9)
-            clevelVTicks = np.linspace(-0.14,0.14, 15)
-            cbar = plt.colorbar(cf, cax=cax, ticks=clevelVTicks, **kw)
-            yticklabelsV = np.round(np.linspace(-0.14,0.14, 15),2)
-            yticklabelsV[0:2] = [-0.8,-0.4]
-            yticklabelsV[13:15] = [0.4,0.8]
-            cbar.set_ticklabels(yticklabelsV)
-            cbar.ax.tick_params(labelsize=12, labelcolor='black')
-            #cbar.set_label('psu', fontsize=12, fontweight='bold')
-            cbar.set_label('velocity', fontsize=12, fontweight='bold')
-            #cf = ax.plot(x, y)
-            if sigma2contours is not None:
-                cs = ax.contour(x, y, sigma2, sigma2contours, colors='k', linewidths=1.5)
-                cb = plt.clabel(cs, levels=sigma2contours, inline=True, inline_spacing=2, fmt='%2.1f', fontsize=9)
-            if sigma0contours is not None:
-                cs = ax.contour(x, y, sigma0, sigma0contours, colors='k', linewidths=1.5)
-                cb = plt.clabel(cs, levels=sigma0contours, inline=True, inline_spacing=2, fmt='%5.2f', fontsize=8)
+            #cax, kw = mpl.colorbar.make_axes(ax, location='right', pad=0.05, shrink=0.9)
+            #clevelVTicks = np.linspace(-0.14,0.14, 15)
+            #cbar = plt.colorbar(cf, cax=cax, ticks=clevelVTicks, **kw)
+            #yticklabelsV = np.round(np.linspace(-0.14,0.14, 15),2)
+            #yticklabelsV[0:2] = [-0.8,-0.4]
+            #yticklabelsV[13:15] = [0.4,0.8]
+            #cbar.set_ticklabels(yticklabelsV)
+            #cbar.ax.tick_params(labelsize=12, labelcolor='black')
+            ##cbar.set_label('psu', fontsize=12, fontweight='bold')
+            #cbar.set_label('velocity', fontsize=12, fontweight='bold')
+            ##cf = ax.plot(x, y)
+            #if sigma2contours is not None:
+            #    cs = ax.contour(x, y, sigma2, sigma2contours, colors='k', linewidths=1.5)
+            #    cb = plt.clabel(cs, levels=sigma2contours, inline=True, inline_spacing=2, fmt='%2.1f', fontsize=9)
+            #if sigma0contours is not None:
+            #    cs = ax.contour(x, y, sigma0, sigma0contours, colors='k', linewidths=1.5)
+            #    cb = plt.clabel(cs, levels=sigma0contours, inline=True, inline_spacing=2, fmt='%5.2f', fontsize=8)
             #ax.set_ylim(0, zmax)
             ax.set_ylim(0, 4000)
-            ax.set_xlim(0, 2200) # OSNAP West only, actually, dont use
+            #ax.set_xlim(0, 2200) # OSNAP East only
             ax.set_xlabel('Distance (km)', fontsize=12, fontweight='bold')
             ax.set_ylabel('Depth (m)', fontsize=12, fontweight='bold')
             ax.set_title(figtitle, fontsize=12, fontweight='bold')
