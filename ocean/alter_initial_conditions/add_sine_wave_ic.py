@@ -16,7 +16,7 @@ from datetime import date
 import matplotlib.pyplot as plt
 import xarray as xr
 
-for p in range(4,11):
+for p in range(4,10):
     N = 2**p
     Lx = 1024.0e3
     nx = N
@@ -53,34 +53,61 @@ for p in range(4,11):
     del2VelocitySol = np.zeros([nEdges,nVertLevels])
     
     k=0
-    # Create initial conditions:
-    kux=1; kuy=2; kvx=2; kvy=3; pi2 = 2.0*np.pi
-    u = np.sin( kux*pi2/Lx*xEdge[:] ) * \
-        np.sin( kuy*pi2/Ly*yEdge[:] )
-    v = np.sin( kvx*pi2/Lx*xEdge[:] ) * \
-        np.sin( kvy*pi2/Ly*yEdge[:] )
-    ux= kux*pi2/Lx* \
-        np.cos( kux*pi2/Lx*xCell[:] ) * \
-        np.sin( kuy*pi2/Ly*yCell[:] )
-    vy= kvy*pi2/Ly* \
-        np.sin( kvx*pi2/Lx*xCell[:] ) * \
-        np.cos( kvy*pi2/Ly*yCell[:] )
-    uy= kuy*pi2/Ly* \
-        np.sin( kux*pi2/Lx*xVertex[:] ) * \
-        np.cos( kuy*pi2/Ly*yVertex[:] )
-    vx= kvx*pi2/Lx* \
-        np.cos( kvx*pi2/Lx*xVertex[:] ) * \
-        np.sin( kvy*pi2/Ly*yVertex[:] )
-    uxy = kux*pi2/Lx * kuy*pi2/Ly * \
-        np.cos( kux*pi2/Lx*xEdge[:] ) * \
-        np.cos( kuy*pi2/Ly*yEdge[:] )
-    vxy = kvx*pi2/Lx * kvy*pi2/Ly * \
-        np.cos( kvx*pi2/Lx*xEdge[:] ) * \
-        np.cos( kvy*pi2/Ly*yEdge[:] )
-    uxx = -(kux*pi2/Lx)**2*u
-    uyy = -(kuy*pi2/Ly)**2*u
-    vxx = -(kvx*pi2/Lx)**2*v
-    vyy = -(kvy*pi2/Ly)**2*v
+    IC=1
+    # Create initial conditions for sin(x)*sin(y)
+    if IC==1:
+        kux=1; kuy=2; kvx=2; kvy=3; pi2 = 2.0*np.pi
+        u = np.sin( kux*pi2/Lx*xEdge[:] ) * \
+            np.sin( kuy*pi2/Ly*yEdge[:] )
+        v = np.sin( kvx*pi2/Lx*xEdge[:] ) * \
+            np.sin( kvy*pi2/Ly*yEdge[:] )
+        ux= kux*pi2/Lx* \
+            np.cos( kux*pi2/Lx*xCell[:] ) * \
+            np.sin( kuy*pi2/Ly*yCell[:] )
+        vy= kvy*pi2/Ly* \
+            np.sin( kvx*pi2/Lx*xCell[:] ) * \
+            np.cos( kvy*pi2/Ly*yCell[:] )
+        uy= kuy*pi2/Ly* \
+            np.sin( kux*pi2/Lx*xVertex[:] ) * \
+            np.cos( kuy*pi2/Ly*yVertex[:] )
+        vx= kvx*pi2/Lx* \
+            np.cos( kvx*pi2/Lx*xVertex[:] ) * \
+            np.sin( kvy*pi2/Ly*yVertex[:] )
+        uxy = kux*pi2/Lx * kuy*pi2/Ly * \
+            np.cos( kux*pi2/Lx*xEdge[:] ) * \
+            np.cos( kuy*pi2/Ly*yEdge[:] )
+        vxy = kvx*pi2/Lx * kvy*pi2/Ly * \
+            np.cos( kvx*pi2/Lx*xEdge[:] ) * \
+            np.cos( kvy*pi2/Ly*yEdge[:] )
+        uxx = -(kux*pi2/Lx)**2*u
+        uyy = -(kuy*pi2/Ly)**2*u
+        vxx = -(kvx*pi2/Lx)**2*v
+        vyy = -(kvy*pi2/Ly)**2*v
+    if IC==2:
+        # Create initial conditions for uyy and vxx only:
+        kux=0; kuy=1; kvx=2; kvy=0; pi2 = 2.0*np.pi
+        u = np.sin( kuy*pi2/Ly*yEdge[:] )
+        v = np.sin( kvx*pi2/Lx*xEdge[:] )
+        ux= kux*pi2/Lx* \
+            np.cos( kux*pi2/Lx*xCell[:] ) * \
+            np.sin( kuy*pi2/Ly*yCell[:] )
+        vy= kvy*pi2/Ly* \
+            np.sin( kvx*pi2/Lx*xCell[:] ) * \
+            np.cos( kvy*pi2/Ly*yCell[:] )
+        uy= kuy*pi2/Ly* \
+            np.cos( kuy*pi2/Ly*yVertex[:] )
+        vx= kvx*pi2/Lx* \
+            np.cos( kvx*pi2/Lx*xVertex[:] ) 
+        uxy = kux*pi2/Lx * kuy*pi2/Ly * \
+            np.cos( kux*pi2/Lx*xEdge[:] ) * \
+            np.cos( kuy*pi2/Ly*yEdge[:] )
+        vxy = kvx*pi2/Lx * kvy*pi2/Ly * \
+            np.cos( kvx*pi2/Lx*xEdge[:] ) * \
+            np.cos( kvy*pi2/Ly*yEdge[:] )
+        uxx = -(kux*pi2/Lx)**2*u
+        uyy = -(kuy*pi2/Ly)**2*u
+        vxx = -(kvx*pi2/Lx)**2*v
+        vyy = -(kvy*pi2/Ly)**2*v
     zonalVelocityEdge[:,k] = u
     meridionalVelocityEdge[:,k] = v
     normalVelocity[:,k] = \

@@ -44,23 +44,24 @@ yVertex = initDS.variables['yVertex']
 k=0
 
 figdpi = 200
-fig = plt.figure(figsize=(40,12))
+fig = plt.figure(figsize=(40,16))
 varNames = ['divergenceSol', 'relativeVorticitySol','del2GradDivVelocitySol','del2GradVortVelocitySol','del2VelocitySol',
             'divergence', 'relativeVorticity','del2GradDivVelocityTendency','del2GradVortVelocityTendency','hmixDel2VelocityTendency']
 nVars = len(varNames)
 loc = ['cell','vertex','edge','edge','edge','cell','vertex','edge','edge','edge']
 f = ['in','in','in','in','in','out','out','out','out','out']
-norm = [0,0,0,0,0,1e-5,1e-5,4e-10,4e-10,4e-10]
+norm = [1e-5,1e-5,4e-10,4e-10,4e-10,1e-5,1e-5,4e-10,4e-10,4e-10]
 err = np.zeros(nVars)
+rms = np.zeros(nVars)
 
 size = int(32./(N/16.))
 for j in range(nVars):
-    ax = plt.subplot(2,5,j+1)
+    ax = plt.subplot(3,5,j+1)
 
     if f[j]=='in':
-        var = initDS.variables[varNames[j]][:,k]
+        var = initDS.variables[varNames[j]][:,k] / norm[j]
     elif f[j]=='out':
-        var = outDS.variables[varNames[j]][0,:,k]
+        var = outDS.variables[varNames[j]][0,:,k] / norm[j]
     if loc[j]=='cell':
         im = plt.scatter(xCell/1000,yCell/1000,c=var,s=size,marker='H',cmap=plt.cm.jet)
     elif loc[j]=='edge':
@@ -69,15 +70,25 @@ for j in range(nVars):
         im = plt.scatter(xVertex/1000,yVertex/1000,c=var,s=size,marker='^',cmap=plt.cm.jet)
     plt.colorbar(im, ax=ax)
     if j>=nVars/2:
-        varSol = initDS.variables[varNames[j-int(nVars/2)]][:,k]
-        diff = var - varSol
-        err[j] = np.max(abs(diff))/norm[j] # divide by max value
+        varSol = initDS.variables[varNames[j-int(nVars/2)]][:,k] / norm[j]
+        diff = (var - varSol)
+        err[j] = np.max(abs(diff)) # divide by max value
+        rms[j] = np.sqrt(np.mean(diff**2))
         #print('nx={} '.format(np.sqrt(nCells))+'maxabs: {:9.2E}'.format(np.max(abs(diff))),varNames[j])
-        #print('rms: {:9.2E}'.format(np.mean(diff**2)))
         plt.title(varNames[j]+' max diff: {:9.2E}'.format(err[j])+' nx={}'.format(N))
+        plt.title(varNames[j]+' max diff: {:9.2E}'.format(err[j])+' nx={}'.format(N))
+        ax = plt.subplot(3,5,j+1+5)
+        if loc[j]=='cell':
+            im = plt.scatter(xCell/1000,yCell/1000,c=diff,s=size,marker='H',cmap=plt.cm.jet)
+        elif loc[j]=='edge':
+            im = plt.scatter(xEdge/1000,yEdge/1000,c=diff,s=size,marker='s',cmap=plt.cm.jet)
+        elif loc[j]=='vertex':
+            im = plt.scatter(xVertex/1000,yVertex/1000,c=diff,s=size,marker='^',cmap=plt.cm.jet)
+        plt.colorbar(im, ax=ax)
+        plt.title(varNames[j]+' diff')
     else:
         plt.title(varNames[j])
-print('   {}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}'.format(N,err[5],err[6], err[7],err[8],err[9]))
+print('   {}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E},     {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}'.format(N,err[5],err[6], err[7],err[8],err[9],rms[5],rms[6], rms[7],rms[8],rms[9]))
 
     #plt.xlabel('x, km')
     #plt.ylabel('y, km')
