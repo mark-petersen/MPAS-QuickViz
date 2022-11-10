@@ -14,7 +14,7 @@ newFileName = 'init.nc'
 
 ############################## domain and IC
 nx = 32
-ny = 4
+ny = 32
 import numpy as np
 dc = 1.0
 Lx = nx*dc
@@ -57,8 +57,12 @@ normalVelocity[:,k] = np.cos(angleEdge[:]) * zonalVelocityEdge[:,k] + np.sin(ang
 
 divergenceSol[:,k] = 2*np.pi*kx / Lx * np.cos( 2*np.pi*kx / Lx * xCell[:] )
 relativeVorticitySol[:,k] = 0.0 * xVertex[:]
-del2GradDivVelocitySol[:,k] = -(2*np.pi*kx / Lx)**2 * np.sin( 2*np.pi*kx / Lx * xEdge[:] )
-del2GradVortVelocitySol[:,k] = 0.0 * xEdge[:]
+del2GradDivVelocitySol[:,k] = \
+      np.cos(angleEdge[:]) * -(2*np.pi*kx / Lx)**2 * np.sin( 2*np.pi*kx / Lx * xEdge[:] ) \
+    + np.sin(angleEdge[:]) * 0.0 * yEdge[:]
+del2GradVortVelocitySol[:,k] = \
+      np.cos(angleEdge[:]) * 0.0 * xEdge[:] \
+    + np.sin(angleEdge[:]) * 0.0 * yEdge[:]
 
 print('write file:')
 #mesh.expand_dims({'nVertLevels':nVertLevels})
