@@ -66,7 +66,6 @@ for j in range(len(varNames)):
         var = initDS.variables[varNames[j]][:,k]
     elif f[j]=='out':
         var = outDS.variables[varNames[j]][0,:,k]
-    print(j,varNames[j])
     if loc[j]=='cell':
         im = plt.scatter(xCell/1000,yCell/1000,c=var,s=16,marker='H',cmap=plt.cm.jet)
     elif loc[j]=='edge':
@@ -74,18 +73,18 @@ for j in range(len(varNames)):
     elif loc[j]=='vertex':
         im = plt.scatter(xVertex/1000,yVertex/1000,c=var,s=16,marker='^',cmap=plt.cm.jet)
     plt.colorbar(im, ax=ax)
-    if j>=4:
+    if j>=6:
         varSol = initDS.variables[varNames[j-4]][:,k]
         diff = var - varSol
-        print('max: {:9.2E}'.format(np.max(abs(diff))))
-        print('rms: {:9.2E}'.format(np.mean(diff**2)))
-        plt.title(varNames[j]+' max diff: {:9.2E}'.format(np.max(diff)))
+        print('nx={} '.format(np.sqrt(nCells))+'maxabs: {:9.2E}'.format(np.max(abs(diff))),varNames[j])
+        #print('rms: {:9.2E}'.format(np.mean(diff**2)))
+        plt.title(varNames[j]+' max diff: {:9.2E}'.format(np.max(diff))+' nx={}'.format(np.sqrt(nCells)))
     else:
         plt.title(varNames[j])
 
     #plt.xlabel('x, km')
     #plt.ylabel('y, km')
-figfile = 'plot_out.png'
+figfile = 'plot_del2_nx{}'.format(np.sqrt(nCells))+'.png'
 plt.savefig(figfile) #, bbox_inches='tight')
 plt.close()
 

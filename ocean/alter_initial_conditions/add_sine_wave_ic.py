@@ -51,18 +51,38 @@ del2GradDivVelocitySol = np.zeros([nEdges,nVertLevels])
 del2GradVortVelocitySol = np.zeros([nEdges,nVertLevels])
 
 k=0
-zonalVelocityEdge[:,k] = np.sin( 2*np.pi*kx / Lx * xEdge[:] )
-meridionalVelocityEdge[:,k] = np.sin( 2*np.pi*ky / Ly * yEdge[:] )
-normalVelocity[:,k] = np.cos(angleEdge[:]) * zonalVelocityEdge[:,k] + np.sin(angleEdge[:]) * meridionalVelocityEdge[:,k]
+# Create initial conditions:
+kux=1; kuy=2; kvx=2; kvy=3; pi2 = 2.0*np.pi
+u = np.sin( kux*pi2/Lx*xEdge[:] ) * \
+    np.sin( kuy*pi2/Ly*yEdge[:] )
+v = np.sin( kvx*pi2/Lx*xEdge[:] ) * \
+    np.sin( kvy*pi2/Ly*yEdge[:] )
+uxy = kux*pi2/Lx * kuy*pi2/Ly * \
+    np.cos( kux*pi2/Lx*xEdge[:] ) * \
+    np.cos( kuy*pi2/Ly*yEdge[:] )
+vxy = kvx*pi2/Lx * kvy*pi2/Ly * \
+    np.cos( kvx*pi2/Lx*xEdge[:] ) * \
+    np.cos( kvy*pi2/Ly*yEdge[:] )
+uxx = -(kux*pi2/Lx)**2*u
+uyy = -(kuy*pi2/Ly)**2*u
+vxx = -(kvx*pi2/Lx)**2*v
+vyy = -(kvy*pi2/Ly)**2*v
+zonalVelocityEdge[:,k] = u
+meridionalVelocityEdge[:,k] = v
+normalVelocity[:,k] = \
+      np.cos(angleEdge[:]) * u \
+    + np.sin(angleEdge[:]) * v
 
-divergenceSol[:,k] = 2*np.pi*kx / Lx * np.cos( 2*np.pi*kx / Lx * xCell[:] )
-relativeVorticitySol[:,k] = 0.0 * xVertex[:]
+# Create exact solutions:
+
+#divergenceSol[:,k] = 2*np.pi*kx / Lx * np.cos( 2*np.pi*kx / Lx * xCell[:] )
+#relativeVorticitySol[:,k] = 0.0 * xVertex[:]
 del2GradDivVelocitySol[:,k] = \
-      np.cos(angleEdge[:]) * -(2*np.pi*kx / Lx)**2 * np.sin( 2*np.pi*kx / Lx * xEdge[:] ) \
-    + np.sin(angleEdge[:]) * 0.0 * yEdge[:]
+      np.cos(angleEdge[:]) * (uxx + vxy) \
+    + np.sin(angleEdge[:]) * (uxy + vyy)
 del2GradVortVelocitySol[:,k] = \
-      np.cos(angleEdge[:]) * 0.0 * xEdge[:] \
-    + np.sin(angleEdge[:]) * 0.0 * yEdge[:]
+      np.cos(angleEdge[:]) * (uyy - vxy) \
+    + np.sin(angleEdge[:]) * (vxx - uxy)
 
 print('write file:')
 #mesh.expand_dims({'nVertLevels':nVertLevels})
