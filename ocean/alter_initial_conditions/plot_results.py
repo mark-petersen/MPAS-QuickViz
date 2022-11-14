@@ -43,6 +43,7 @@ yVertex = initDS.variables['yVertex']
 
 k=0
 
+
 figdpi = 200
 fig = plt.figure(figsize=(40,16))
 varNames = ['divergenceSol', 'relativeVorticitySol','del2GradDivVelocitySol','del2GradVortVelocitySol','del2VelocitySol',
@@ -90,8 +91,39 @@ for j in range(nVars):
         plt.title(varNames[j])
 print('   {}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E},     {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}'.format(N,err[5],err[6], err[7],err[8],err[9],rms[5],rms[6], rms[7],rms[8],rms[9]))
 
-    #plt.xlabel('x, km')
-    #plt.ylabel('y, km')
+# compute k x grad nu from exact nu
+# This is the Fortran code:
+#      do iEdge = 1, nEdgesOwned
+#         vertex1 = verticesOnEdge(1,iEdge)
+#         vertex2 = verticesOnEdge(2,iEdge)
+#         dvEdgeInv = 1.0_RKIND / dvEdge(iEdge)
+#      del2GradVortVelocityTendency(k,iEdge) = - edgeMask(k,iEdge)*visc2 *&
+#                   (relVort(k,vertex2)-relVort(k,vertex1))*dvEdgeInv
+
+verticesOnEdge = initDS.variables['verticesOnEdge']
+dvEdge = initDS.variables['dvEdge']
+relativeVorticitySol = initDS.variables['relativeVorticitySol']
+kxGradExactVort = np.zeros(:,k)
+for iEdge in range(nEdges):
+     vertex1 = verticesOnEdge[0,iEdge]-1
+     vertex2 = verticesOnEdge[1,iEdge]-1
+     kxGradExactVort[iEdge] = ( \
+         relativeVorticitySol[vertex2,k] - \
+         relativeVorticitySol[vertex1,k])/dvEdge[iEdge]
+kxGradExactVortErr = kxGradExactVort - del2GradVortVelocitySol
+
+ax = plt.subplot(3,5,13)
+im = plt.scatter(xEdge/1000,yEdge/1000,c=del2GradVortVelocitySol,s=size,marker='s',cmap=plt.cm.jet)
+plt.title('del2GradVortVelocitySol')
+
+ax = plt.subplot(3,5,14)
+im = plt.scatter(xEdge/1000,yEdge/1000,c=kxGradExactVort,s=size,marker='s',cmap=plt.cm.jet)
+plt.title('kxGradExactVort')
+
+ax = plt.subplot(3,5,15)
+im = plt.scatter(xEdge/1000,yEdge/1000,c=kxGradExactVortErr,s=size,marker='s',cmap=plt.cm.jet)
+plt.title('kxGradExactVortErr')
+
 figfile = 'plot_del2_nx{:04d}'.format(N)+'.png'
 plt.savefig(figfile) #, bbox_inches='tight')
 plt.close()
