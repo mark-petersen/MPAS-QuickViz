@@ -7,7 +7,6 @@ September 2022
 """
 
 ############################## model files, run dirs
-runDir = '/lustre/scratch5/turquoise/mpeterse/runs/s08a/'
 runDir = './'
 
 ############################## domain and IC
@@ -48,6 +47,7 @@ for p in range(4,10):
     normalVelocity = np.zeros([nEdges,nVertLevels])
     divergenceSol = np.zeros([nCells,nVertLevels])
     relativeVorticitySol = np.zeros([nVertices,nVertLevels])
+    relativeVorticityCellSol = np.zeros([nCells,nVertLevels])
     del2GradDivVelocitySol = np.zeros([nEdges,nVertLevels])
     del2GradVortVelocitySol = np.zeros([nEdges,nVertLevels])
     del2VelocitySol = np.zeros([nEdges,nVertLevels])
@@ -67,12 +67,18 @@ for p in range(4,10):
         vy= kvy*pi2/Ly* \
             np.sin( kvx*pi2/Lx*xCell[:] ) * \
             np.cos( kvy*pi2/Ly*yCell[:] )
-        uy= kuy*pi2/Ly* \
+        uyV=kuy*pi2/Ly* \
             np.sin( kux*pi2/Lx*xVertex[:] ) * \
             np.cos( kuy*pi2/Ly*yVertex[:] )
-        vx= kvx*pi2/Lx* \
+        vxV=kvx*pi2/Lx* \
             np.cos( kvx*pi2/Lx*xVertex[:] ) * \
             np.sin( kvy*pi2/Ly*yVertex[:] )
+        uyC=kuy*pi2/Ly* \
+            np.sin( kux*pi2/Lx*xCell[:] ) * \
+            np.cos( kuy*pi2/Ly*yCell[:] )
+        vxC=kvx*pi2/Lx* \
+            np.cos( kvx*pi2/Lx*xCell[:] ) * \
+            np.sin( kvy*pi2/Ly*yCell[:] )
         uxy = kux*pi2/Lx * kuy*pi2/Ly * \
             np.cos( kux*pi2/Lx*xEdge[:] ) * \
             np.cos( kuy*pi2/Ly*yEdge[:] )
@@ -94,9 +100,13 @@ for p in range(4,10):
         vy= kvy*pi2/Ly* \
             np.sin( kvx*pi2/Lx*xCell[:] ) * \
             np.cos( kvy*pi2/Ly*yCell[:] )
-        uy= kuy*pi2/Ly* \
+        uyC=kuy*pi2/Ly* \
+            np.cos( kuy*pi2/Ly*yCell[:] )
+        vxC=kvx*pi2/Lx* \
+            np.cos( kvx*pi2/Lx*xCell[:] ) 
+        uyV=kuy*pi2/Ly* \
             np.cos( kuy*pi2/Ly*yVertex[:] )
-        vx= kvx*pi2/Lx* \
+        vxV=kvx*pi2/Lx* \
             np.cos( kvx*pi2/Lx*xVertex[:] ) 
         uxy = kux*pi2/Lx * kuy*pi2/Ly * \
             np.cos( kux*pi2/Lx*xEdge[:] ) * \
@@ -117,7 +127,8 @@ for p in range(4,10):
     # Create exact solutions:
     
     divergenceSol[:,k] = ux + vy
-    relativeVorticitySol[:,k] = vx - uy
+    relativeVorticitySol[:,k] = vxV - uyV
+    relativeVorticityCellSol[:,k] = vxC - uyC
     del2GradDivVelocitySol[:,k] = \
           np.cos(angleEdge[:]) * (uxx + vxy) \
         + np.sin(angleEdge[:]) * (uxy + vyy)
@@ -135,6 +146,7 @@ for p in range(4,10):
     mesh["normalVelocity"]=(['nEdges','nVertLevels'], normalVelocity)
     mesh["divergenceSol"]=(['nCells','nVertLevels'], divergenceSol)
     mesh["relativeVorticitySol"]=(['nVertices','nVertLevels'], relativeVorticitySol)
+    mesh["relativeVorticityCellSol"]=(['nCells','nVertLevels'], relativeVorticityCellSol)
     mesh["del2GradDivVelocitySol"]=(['nEdges','nVertLevels'], del2GradDivVelocitySol)
     mesh["del2GradVortVelocitySol"]=(['nEdges','nVertLevels'], del2GradVortVelocitySol)
     mesh["del2VelocitySol"]=(['nEdges','nVertLevels'], del2VelocitySol)
