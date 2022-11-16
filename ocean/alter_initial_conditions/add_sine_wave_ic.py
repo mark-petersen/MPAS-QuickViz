@@ -15,7 +15,7 @@ from datetime import date
 import matplotlib.pyplot as plt
 import xarray as xr
 
-for p in range(4,10):
+for p in range(4,5):
     N = 2**p
     Lx = 1024.0e3
     nx = N
@@ -52,11 +52,77 @@ for p in range(4,10):
     del2GradVortVelocitySol = np.zeros([nEdges,nVertLevels])
     del2VelocitySol = np.zeros([nEdges,nVertLevels])
     
+    xmin = min(xEdge)
+    ymin = min(yEdge)
     k=0
-    IC=1
+    IC=5
     # Create initial conditions for sin(x)*sin(y)
     if IC==1:
         kux=1; kuy=2; kvx=2; kvy=3; pi2 = 2.0*np.pi
+        u = np.sin( kux*pi2/Lx*(xEdge[:] - xmin) ) * \
+            np.sin( kuy*pi2/Ly*(yEdge[:] - ymin) )
+        v = np.sin( kvx*pi2/Lx*(xEdge[:] - xmin) ) * \
+            np.sin( kvy*pi2/Ly*(yEdge[:] - ymin) )
+        ux= kux*pi2/Lx* \
+            np.cos( kux*pi2/Lx*(xCell[:] - xmin) ) * \
+            np.sin( kuy*pi2/Ly*(yCell[:] - ymin) )
+        vy= kvy*pi2/Ly* \
+            np.sin( kvx*pi2/Lx*(xCell[:] - xmin) ) * \
+            np.cos( kvy*pi2/Ly*(yCell[:] - ymin) )
+        uyV=kuy*pi2/Ly* \
+            np.sin( kux*pi2/Lx*(xVertex[:] - xmin) ) * \
+            np.cos( kuy*pi2/Ly*(yVertex[:] - ymin) )
+        vxV=kvx*pi2/Lx* \
+            np.cos( kvx*pi2/Lx*(xVertex[:] - xmin) ) * \
+            np.sin( kvy*pi2/Ly*(yVertex[:] - ymin) )
+        uyC=kuy*pi2/Ly* \
+            np.sin( kux*pi2/Lx*(xCell[:] - xmin) ) * \
+            np.cos( kuy*pi2/Ly*(yCell[:] - ymin) )
+        vxC=kvx*pi2/Lx* \
+            np.cos( kvx*pi2/Lx*(xCell[:] - xmin) ) * \
+            np.sin( kvy*pi2/Ly*(yCell[:] - ymin) )
+        uxy = kux*pi2/Lx * kuy*pi2/Ly * \
+            np.cos( kux*pi2/Lx*(xEdge[:] - xmin) ) * \
+            np.cos( kuy*pi2/Ly*(yEdge[:] - ymin) )
+        vxy = kvx*pi2/Lx * kvy*pi2/Ly * \
+            np.cos( kvx*pi2/Lx*(xEdge[:] - xmin) ) * \
+            np.cos( kvy*pi2/Ly*(yEdge[:] - ymin) )
+        uxx = -(kux*pi2/Lx)**2*u
+        uyy = -(kuy*pi2/Ly)**2*u
+        vxx = -(kvx*pi2/Lx)**2*v
+        vyy = -(kvy*pi2/Ly)**2*v
+    elif IC==2:
+        # Create initial conditions for uyy and vxx only:
+        kux=0; kuy=1; kvx=2; kvy=0; pi2 = 2.0*np.pi
+        u = np.sin( kuy*pi2/Ly*yEdge[:] )
+        v = np.sin( kvx*pi2/Lx*xEdge[:] )
+        ux= kux*pi2/Lx* \
+            np.cos( kux*pi2/Lx*xCell[:] ) * \
+            np.sin( kuy*pi2/Ly*yCell[:] )
+        vy= kvy*pi2/Ly* \
+            np.sin( kvx*pi2/Lx*xCell[:] ) * \
+            np.cos( kvy*pi2/Ly*yCell[:] )
+        uyC=kuy*pi2/Ly* \
+            np.cos( kuy*pi2/Ly*yCell[:] )
+        vxC=kvx*pi2/Lx* \
+            np.cos( kvx*pi2/Lx*xCell[:] ) 
+        uyV=kuy*pi2/Ly* \
+            np.cos( kuy*pi2/Ly*yVertex[:] )
+        vxV=kvx*pi2/Lx* \
+            np.cos( kvx*pi2/Lx*xVertex[:] ) 
+        uxy = kux*pi2/Lx * kuy*pi2/Ly * \
+            np.cos( kux*pi2/Lx*xEdge[:] ) * \
+            np.cos( kuy*pi2/Ly*yEdge[:] )
+        vxy = kvx*pi2/Lx * kvy*pi2/Ly * \
+            np.cos( kvx*pi2/Lx*xEdge[:] ) * \
+            np.cos( kvy*pi2/Ly*yEdge[:] )
+        uxx = -(kux*pi2/Lx)**2*u
+        uyy = -(kuy*pi2/Ly)**2*u
+        vxx = -(kvx*pi2/Lx)**2*v
+        vyy = -(kvy*pi2/Ly)**2*v
+    elif IC==3:
+        # Create initial conditions for grid scale noise in y:
+        kux=1; kuy=1; kvx=1; kvy=N/2; pi2 = 2.0*np.pi
         u = np.sin( kux*pi2/Lx*xEdge[:] ) * \
             np.sin( kuy*pi2/Ly*yEdge[:] )
         v = np.sin( kvx*pi2/Lx*xEdge[:] ) * \
@@ -89,34 +155,66 @@ for p in range(4,10):
         uyy = -(kuy*pi2/Ly)**2*u
         vxx = -(kvx*pi2/Lx)**2*v
         vyy = -(kvy*pi2/Ly)**2*v
-    if IC==2:
-        # Create initial conditions for uyy and vxx only:
-        kux=0; kuy=1; kvx=2; kvy=0; pi2 = 2.0*np.pi
-        u = np.sin( kuy*pi2/Ly*yEdge[:] )
-        v = np.sin( kvx*pi2/Lx*xEdge[:] )
-        ux= kux*pi2/Lx* \
-            np.cos( kux*pi2/Lx*xCell[:] ) * \
-            np.sin( kuy*pi2/Ly*yCell[:] )
-        vy= kvy*pi2/Ly* \
-            np.sin( kvx*pi2/Lx*xCell[:] ) * \
-            np.cos( kvy*pi2/Ly*yCell[:] )
-        uyC=kuy*pi2/Ly* \
-            np.cos( kuy*pi2/Ly*yCell[:] )
-        vxC=kvx*pi2/Lx* \
-            np.cos( kvx*pi2/Lx*xCell[:] ) 
-        uyV=kuy*pi2/Ly* \
-            np.cos( kuy*pi2/Ly*yVertex[:] )
-        vxV=kvx*pi2/Lx* \
-            np.cos( kvx*pi2/Lx*xVertex[:] ) 
+    elif IC==4:
+        # Create initial conditions for grid scale noise in y:
+        kux=1; kuy=1; kvx=1; kvy=N/2; pi2 = 2.0*np.pi
+        u = np.cos( kux*pi2/Lx*(xEdge[:] - xmin)  ) * \
+            np.cos( kuy*pi2/Ly*(yEdge[:] - ymin)  )
+        v = np.cos( kvx*pi2/Lx*(xEdge[:] - xmin)  ) * \
+            np.cos( kvy*pi2/Ly*(yEdge[:] - ymin)  )
+        ux=-kux*pi2/Lx* \
+            np.sin( kux*pi2/Lx*(xCell[:] - xmin)  ) * \
+            np.cos( kuy*pi2/Ly*(yCell[:] - ymin)  )
+        vy=-kvy*pi2/Ly* \
+            np.cos( kvx*pi2/Lx*(xCell[:] - xmin)  ) * \
+            np.sin( kvy*pi2/Ly*(yCell[:] - ymin)  )
+        uyV=-kuy*pi2/Ly* \
+            np.cos( kux*pi2/Lx*(xVertex[:] - xmin ) ) * \
+            np.sin( kuy*pi2/Ly*(yVertex[:] - ymin ) )
+        vxV=-kvx*pi2/Lx* \
+            np.sin( kvx*pi2/Lx*(xVertex[:] - xmin ) ) * \
+            np.cos( kvy*pi2/Ly*(yVertex[:] - ymin ) )
+        uyC=-kuy*pi2/Ly* \
+            np.cos( kux*pi2/Lx*(xCell[:] - xmin)  ) * \
+            np.sin( kuy*pi2/Ly*(yCell[:] - ymin)  )
+        vxC=-kvx*pi2/Lx* \
+            np.sin( kvx*pi2/Lx*(xCell[:] - xmin)  ) * \
+            np.cos( kvy*pi2/Ly*(yCell[:] - ymin)  )
         uxy = kux*pi2/Lx * kuy*pi2/Ly * \
-            np.cos( kux*pi2/Lx*xEdge[:] ) * \
-            np.cos( kuy*pi2/Ly*yEdge[:] )
+            np.sin( kux*pi2/Lx*(xEdge[:] - xmin)  ) * \
+            np.sin( kuy*pi2/Ly*(yEdge[:] - ymin)  )
         vxy = kvx*pi2/Lx * kvy*pi2/Ly * \
-            np.cos( kvx*pi2/Lx*xEdge[:] ) * \
-            np.cos( kvy*pi2/Ly*yEdge[:] )
+            np.sin( kvx*pi2/Lx*(xEdge[:] - xmin)  ) * \
+            np.sin( kvy*pi2/Ly*(yEdge[:] - ymin)  )
         uxx = -(kux*pi2/Lx)**2*u
         uyy = -(kuy*pi2/Ly)**2*u
         vxx = -(kvx*pi2/Lx)**2*v
+        vyy = -(kvy*pi2/Ly)**2*v
+    elif IC==5:
+        # Create initial conditions for grid scale noise in y ONLY:
+        kvy=N/2; pi2 = 2.0*np.pi
+        #kvy=1; pi2 = 2.0*np.pi
+        nu2 = 1000
+        tDay = 1
+        tSec = tDay*86400
+        print('kvy',kvy,'Ly',Ly,'kvy*pi2/Ly',kvy*pi2/Ly)
+        print('nu2',nu2,'tDay',tDay,'exp(-nu2 * (kvy*pi2/Ly)**2 *tSec)',np.exp(-nu2 * (kvy*pi2/Ly)**2 *tSec) )
+        print('set nu4 to {:e}'.format(nu2 * (kvy*pi2/Ly)**-2 ))
+
+        u = 0.0*xEdge[:]
+        v = np.cos( kvy*pi2/Ly*(yEdge[:] - ymin)  )
+        ux= 0*xCell[:]
+        vy=-kvy*pi2/Ly* \
+            np.sin( kvy*pi2/Ly*(yCell[:] - ymin)  )
+        uyV=0.0*xVertex[:]
+        vxV=0.0*xVertex[:]
+        uyC=0.0*xCell[:]
+        vxC=0.0*xCell[:]
+        uxy = 0.0*xEdge[:]
+        vxy = 0.0*xEdge[:]
+        uxx = 0.0*xEdge[:]
+        uyy = 0.0*xEdge[:]
+        vxx = 0.0*xEdge[:]
         vyy = -(kvy*pi2/Ly)**2*v
     zonalVelocityEdge[:,k] = u
     meridionalVelocityEdge[:,k] = v

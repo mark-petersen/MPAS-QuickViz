@@ -42,6 +42,7 @@ xVertex = initDS.variables['xVertex']
 yVertex = initDS.variables['yVertex']
 
 k=0
+iTime = 30
 figdpi = 200
 fig = plt.figure(figsize=(40,16))
 varNames = ['divergenceSol', 'relativeVorticitySol', 'relativeVorticityCellSol','del2GradDivVelocitySol','del2GradVortVelocitySol','del2VelocitySol',
@@ -60,7 +61,7 @@ for j in range(nVars):
     if f[j]=='in':
         var = initDS.variables[varNames[j]][:,k] / norm[j]
     elif f[j]=='out':
-        var = outDS.variables[varNames[j]][0,:,k] / norm[j]
+        var = outDS.variables[varNames[j]][iTime,:,k] / norm[j]
     if loc[j]=='cell':
         im = plt.scatter(xCell/1000,yCell/1000,c=var,s=size,marker='H',cmap=plt.cm.jet)
     elif loc[j]=='edge':
@@ -90,11 +91,11 @@ for j in range(nVars):
 #print('   {}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E},     {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}' \
 #     .format(N,err[5],err[6], err[7],err[8],err[9], \
 #               rms[5],rms[6], rms[7],rms[8],rms[9]))
-figfile = 'plot_del2_nx{:04d}'.format(N)+'.png'
+figfile = 'plot_del2_nx{:04d}_t{}'.format(N,iTime)+'.png'
 plt.savefig(figfile) #, bbox_inches='tight')
 plt.close()
 
-
+exit()
 # compute k x grad nu from exact nu
 # This is the Fortran code:
 #      do iEdge = 1, nEdgesOwned
