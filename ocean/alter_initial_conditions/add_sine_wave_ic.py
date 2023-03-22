@@ -16,12 +16,12 @@ import matplotlib.pyplot as plt
 import xarray as xr
 
 for p in range(4,5):
+    dc = 30.0e3
     N = 2**p
-    Lx = 1024.0e3
     nx = N
     ny = N
     import numpy as np
-    dc = int(Lx/N)
+    Lx = nx*dc
     Ly = ny*dc*np.sqrt(3)/2
     nVertLevels=1
     fileName = 'base_mesh_{}x{}.nc'.format(nx,ny)
@@ -192,19 +192,20 @@ for p in range(4,5):
         vyy = -(kvy*pi2/Ly)**2*v
     elif IC==5:
         # Create initial conditions for grid scale noise in y ONLY:
-        kvy=N/2; pi2 = 2.0*np.pi
-        #kvy=1; pi2 = 2.0*np.pi
+        #kvy=N/2; pi2 = 2.0*np.pi; vmax = 0.1
+        kvy=1; pi2 = 2.0*np.pi; vmax = 0.1
         nu2 = 1000
         tDay = 1
         tSec = tDay*86400
-        print('kvy',kvy,'Ly',Ly,'kvy*pi2/Ly',kvy*pi2/Ly)
-        print('nu2',nu2,'tDay',tDay,'exp(-nu2 * (kvy*pi2/Ly)**2 *tSec)',np.exp(-nu2 * (kvy*pi2/Ly)**2 *tSec) )
-        print('set nu4 to {:e}'.format(nu2 * (kvy*pi2/Ly)**-2 ))
+        print('N',N,'kvy',kvy,'vmax',vmax)
+        #print('kvy',kvy,'Ly',Ly,'kvy*pi2/Ly',kvy*pi2/Ly)
+        #print('nu2',nu2,'tDay',tDay,'exp(-nu2 * (kvy*pi2/Ly)**2 *tSec)',np.exp(-nu2 * (kvy*pi2/Ly)**2 *tSec) )
+        #print('set nu4 to {:e}'.format(nu2 * (kvy*pi2/Ly)**-2 ))
 
         u = 0.0*xEdge[:]
-        v = np.cos( kvy*pi2/Ly*(yEdge[:] - ymin)  )
+        v = vmax * np.cos( kvy*pi2/Ly*(yEdge[:] - ymin)  )
         ux= 0*xCell[:]
-        vy=-kvy*pi2/Ly* \
+        vy=-vmax * kvy*pi2/Ly* \
             np.sin( kvy*pi2/Ly*(yCell[:] - ymin)  )
         uyV=0.0*xVertex[:]
         vxV=0.0*xVertex[:]
@@ -215,7 +216,7 @@ for p in range(4,5):
         uxx = 0.0*xEdge[:]
         uyy = 0.0*xEdge[:]
         vxx = 0.0*xEdge[:]
-        vyy = -(kvy*pi2/Ly)**2*v
+        vyy = -vmax * (kvy*pi2/Ly)**2*v
     zonalVelocityEdge[:,k] = u
     meridionalVelocityEdge[:,k] = v
     normalVelocity[:,k] = \
