@@ -16,8 +16,10 @@ import matplotlib.pyplot as plt
 import xarray as xr
 
 for p in range(4,5):
-    dc = 30.0e3
     N = 2**p
+    dc = 64.0e3*16.0/N
+    print('N',N)
+    print('dc',dc)
     nx = N
     ny = N
     import numpy as np
@@ -26,7 +28,7 @@ for p in range(4,5):
     nVertLevels=1
     fileName = 'base_mesh_{}x{}.nc'.format(nx,ny)
     newFileName = 'init_{}x{}.nc'.format(nx,ny)
-    #print('planar_hex --nx {} --ny {} --dc {} -o '.format(nx,ny,dc)+fileName)
+    print('planar_hex --nx {} --ny {} --dc {} -o '.format(nx,ny,dc)+fileName)
 
     #from netCDF4 import Dataset
     mesh = xr.open_dataset(runDir+fileName)
@@ -55,10 +57,11 @@ for p in range(4,5):
     xmin = min(xEdge)
     ymin = min(yEdge)
     k=0
+    pi2 = 2.0*np.pi
     IC=5
     # Create initial conditions for sin(x)*sin(y)
     if IC==1:
-        kux=1; kuy=2; kvx=2; kvy=3; pi2 = 2.0*np.pi
+        kux=1; kuy=2; kvx=2; kvy=3; 
         u = np.sin( kux*pi2/Lx*(xEdge[:] - xmin) ) * \
             np.sin( kuy*pi2/Ly*(yEdge[:] - ymin) )
         v = np.sin( kvx*pi2/Lx*(xEdge[:] - xmin) ) * \
@@ -193,17 +196,20 @@ for p in range(4,5):
     elif IC==5:
         # Create initial conditions for grid scale noise in y ONLY:
         #kvy=N/2; pi2 = 2.0*np.pi; vmax = 0.1
-        kvy=1; pi2 = 2.0*np.pi; vmax = 0.1
-        nu2 = 1000
+        kvy=8; pi2 = 2.0*np.pi; vmax = 1.0
+        #nu2 = 1000
         tDay = 1
         tSec = tDay*86400
         print('N',N,'kvy',kvy,'vmax',vmax)
         #print('kvy',kvy,'Ly',Ly,'kvy*pi2/Ly',kvy*pi2/Ly)
         #print('nu2',nu2,'tDay',tDay,'exp(-nu2 * (kvy*pi2/Ly)**2 *tSec)',np.exp(-nu2 * (kvy*pi2/Ly)**2 *tSec) )
         #print('set nu4 to {:e}'.format(nu2 * (kvy*pi2/Ly)**-2 ))
+        print('yEdge',yEdge)
+        print('ymin',ymin)
 
         u = 0.0*xEdge[:]
         v = vmax * np.cos( kvy*pi2/Ly*(yEdge[:] - ymin)  )
+        print('v',v[0:16])
         ux= 0*xCell[:]
         vy=-vmax * kvy*pi2/Ly* \
             np.sin( kvy*pi2/Ly*(yCell[:] - ymin)  )
@@ -216,7 +222,7 @@ for p in range(4,5):
         uxx = 0.0*xEdge[:]
         uyy = 0.0*xEdge[:]
         vxx = 0.0*xEdge[:]
-        vyy = -vmax * (kvy*pi2/Ly)**2*v
+        vyy = - (kvy*pi2/Ly)**2*v
     zonalVelocityEdge[:,k] = u
     meridionalVelocityEdge[:,k] = v
     normalVelocity[:,k] = \

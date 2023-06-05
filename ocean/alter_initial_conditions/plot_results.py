@@ -51,8 +51,8 @@ nVars = len(varNames)
 loc = ['edge','cell','vertex','cell','edge','edge','edge',
        'edge','cell','vertex','cell','edge','edge','edge']
 f = ['in','in','in','in','in','in','in','in','out','out','out','out','out','out']
-norm = [1.0,1e-5,1e-5,1e-5,4e-10,4e-10,4e-10,
-        1.0,1e-5,1e-5,1e-5,4e-10,4e-10,4e-10]
+norm = [1.0,1e-5,1e-5,1e-5,4e-11,4e-11,4e-11,
+        1.0,1e-5,1e-5,1e-5,4e-11,4e-11,4e-11]
 err = np.zeros(nVars)
 rms = np.zeros(nVars)
 
@@ -87,7 +87,7 @@ for j in range(nVars):
         elif loc[j]=='vertex':
             im = plt.scatter(xVertex/1000,yVertex/1000,c=diff,s=size,marker='^',cmap=plt.cm.jet)
         plt.colorbar(im, ax=ax)
-        plt.title('diff: '+varNames[j]+' max {:9.2E}'.format(err[j]))
+        plt.title(varNames[j]+' {:9.2E}'.format(err[j]))
     else:
         plt.title('exact: '+varNames[j])
 #print('   {}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E},     {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}' \
