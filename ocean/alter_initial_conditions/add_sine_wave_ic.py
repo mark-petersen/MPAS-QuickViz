@@ -15,7 +15,7 @@ from datetime import date
 import matplotlib.pyplot as plt
 import xarray as xr
 
-for p in range(4,5):
+for p in range(4,8):
     N = 2**p
     dc = 64.0e3*16.0/N
     print('N',N)
@@ -58,7 +58,7 @@ for p in range(4,5):
     ymin = min(yEdge)
     k=0
     pi2 = 2.0*np.pi
-    IC=5
+    IC=6
     # Create initial conditions for sin(x)*sin(y)
     if IC==1:
         kux=1; kuy=2; kvx=2; kvy=3; 
@@ -196,7 +196,10 @@ for p in range(4,5):
     elif IC==5:
         # Create initial conditions for grid scale noise in y ONLY:
         #kvy=N/2; pi2 = 2.0*np.pi; vmax = 0.1
-        kvy=8; pi2 = 2.0*np.pi; vmax = 1.0
+# original for testing:
+        #kvy=8; pi2 = 2.0*np.pi; vmax = 1.0
+# newer:
+        kvy=1; pi2 = 2.0*np.pi; vmax = 1.0
         #nu2 = 1000
         tDay = 1
         tSec = tDay*86400
@@ -223,6 +226,25 @@ for p in range(4,5):
         uyy = 0.0*xEdge[:]
         vxx = 0.0*xEdge[:]
         vyy = - (kvy*pi2/Ly)**2*v
+    elif IC==6:
+        # Create initial conditions for grid scale noise or a single mode in x ONLY:
+        kvx=1; pi2 = 2.0*np.pi; umax = 1.0
+
+        u = umax * np.cos( kvx*pi2/Lx*(xEdge[:] - xmin)  )
+        v = 0.0*xEdge[:]
+        ux=-umax * kvx*pi2/Lx* \
+            np.sin( kvx*pi2/Lx*(xCell[:] - xmin)  )
+        vy= 0*xCell[:]
+        uyV=0.0*xVertex[:]
+        vxV=0.0*xVertex[:]
+        uyC=0.0*xCell[:]
+        vxC=0.0*xCell[:]
+        uxy = 0.0*xEdge[:]
+        vxy = 0.0*xEdge[:]
+        uxx = - (kvx*pi2/Lx)**2*u
+        uyy = 0.0*xEdge[:]
+        vxx = 0.0*xEdge[:]
+        vyy = 0.0*xEdge[:]
     zonalVelocityEdge[:,k] = u
     meridionalVelocityEdge[:,k] = v
     normalVelocity[:,k] = \

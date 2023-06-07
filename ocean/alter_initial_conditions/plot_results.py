@@ -74,6 +74,8 @@ for j in range(nVars):
     if j>=nVars/2:
         varSol = initDS.variables[varNames[j-int(nVars/2)]][:,k] / norm[j]
         diff = (var - varSol)
+        #diff = varSol/var
+        print(varSol/var)
         err[j] = np.max(abs(diff)) # divide by max value
         rms[j] = np.sqrt(np.mean(diff**2))
         #print('nx={} '.format(np.sqrt(nCells))+'maxabs: {:9.2E}'.format(np.max(abs(diff))),varNames[j])
@@ -90,9 +92,9 @@ for j in range(nVars):
         plt.title(varNames[j]+' {:9.2E}'.format(err[j]))
     else:
         plt.title('exact: '+varNames[j])
-#print('   {}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E},     {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}' \
-#     .format(N,err[5],err[6], err[7],err[8],err[9], \
-#               rms[5],rms[6], rms[7],rms[8],rms[9]))
+print('   {}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2e}, {:9.2e},     {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2e}, {:9.2E}' \
+     .format(N,err[8],err[9], err[10],err[11],err[12],err[13], \
+               rms[8],rms[9], rms[10],rms[11],rms[12],rms[13]))
 figfile = 'plot_del2_nx{:04d}_t{}'.format(N,iTime)+'.png'
 plt.savefig(figfile, bbox_inches='tight')
 plt.close()
