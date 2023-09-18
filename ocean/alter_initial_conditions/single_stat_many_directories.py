@@ -1,19 +1,25 @@
 '''
-plot global stats
-August 2016, Mark Petersen, LANL
+plot global stats in time
+2023, Mark Petersen, LANL
 '''
 
 from netCDF4 import Dataset
 import matplotlib.pyplot as plt
 import numpy as np
+from datetime import date
 
-wd = '/lustre/scratch5/turquoise/mpeterse/runs/s08'
+wd = '/lustre/scratch5/mpeterse/runs/'
+
 del2or4=2
 if del2or4==2:
-    abc = 'rstu'
-    titleText = 'MPAS-Ocean u_t = nu2 del2 u'
+    casename = 's10'; abc = 'abcd'
+    titleText = 'MPAS-Ocean u_t = nu2 del2 u, orig. form.'
+    casename = 's09'; abc = 'mnop'
+    titleText = 'MPAS-Ocean u_t = nu2 del2 u, stencil form.'
+    casename = 's10'; abc = 'efgh'
+    titleText = 'MPAS-Ocean u_t = nu2 del2 u, half size domain'
 elif del2or4==4:
-    abc = 'vwxy'
+    casename = 's09'; abc = 'qrst'
     titleText = 'MPAS-Ocean u_t = -nu4 del4 u'
 Nyc = '8421'
 fileName = '/analysis_members/globalStats.0001-01-01_00.00.00.nc'
@@ -21,15 +27,17 @@ var = 'normalVelocityMax'
 lt = '-:'
 
 # this plot only:
-Ly = 16.0*30.0e3
+ny = 16.0
+dc = 30.0e3
+Ly = ny*dc*np.sqrt(3)/2
 nu2 = 1000.0
 nu4 = 1.2e11
-kyv = [1,2,3,4]
+kyv = [1,2,4,8]
 pi2 = 2.0* np.pi
 col = 'kbgr'
    
 for j in range(len(abc)):
-    ncDS = Dataset(wd+abc[j]+fileName,'r') 
+    ncDS = Dataset(wd+casename+abc[j]+fileName,'r') 
     x = ncDS.variables['daysSinceStartOfSim']
     y = ncDS.variables[var]
     if del2or4==2:
@@ -46,5 +54,8 @@ for j in range(len(abc)):
     ncDS.close()
 
 plt.title(titleText)
-plt.savefig('heat_eqn_del{}.png'.format(del2or4))
+plt.figtext(.1, .01, casename+abc)
+plt.figtext(.9, .01, date.today().strftime("%m/%d/%y") )
+
+plt.savefig('heat_eqn_del{}_'.format(del2or4)+casename+abc+'.png')
 

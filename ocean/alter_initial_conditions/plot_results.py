@@ -75,7 +75,7 @@ for j in range(nVars):
         varSol = initDS.variables[varNames[j-int(nVars/2)]][:,k] / norm[j]
         diff = (var - varSol)
         #diff = varSol/var
-        print(varSol/var)
+        #print(varSol/var)
         err[j] = np.max(abs(diff)) # divide by max value
         rms[j] = np.sqrt(np.mean(diff**2))
         #print('nx={} '.format(np.sqrt(nCells))+'maxabs: {:9.2E}'.format(np.max(abs(diff))),varNames[j])
@@ -127,8 +127,9 @@ kxGradExactVortErr = np.max(abs(kxGradExactVortDiff/4e-10)) # divide by max valu
 kxGradExactVortRms = np.sqrt(np.mean(kxGradExactVortDiff**2))/4e-10
 
 print('   {}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E},     {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}, {:9.2E}' \
-     .format(N,err[6], err[7],err[8],err[9],err[10],err[11], kxGradExactVortErr, \
-               rms[6], rms[7],rms[8],rms[9],rms[10],rms[11], kxGradExactVortRms))
+     .format(N, err[7],err[8],err[9],err[10],err[11],err[12],err[13], \
+                rms[7],rms[8],rms[9],rms[10],rms[11],rms[12],rms[13]) )
+#, kxGradExactVortRms))
 
 figdpi = 200
 fig = plt.figure(figsize=(10,16))

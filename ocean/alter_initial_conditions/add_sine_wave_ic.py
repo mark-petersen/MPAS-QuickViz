@@ -14,15 +14,18 @@ print('loading libraries...')
 from datetime import date
 import matplotlib.pyplot as plt
 import xarray as xr
+import numpy as np
 
-for p in range(4,8):
+for p in range(4,5):
     N = 2**p
-    dc = 64.0e3*16.0/N
+# for convergence tests:
+    #dc = 64.0e3*16.0/N
+# for heat eqn tests:
+    dc = 30.0e3
     print('N',N)
     print('dc',dc)
     nx = N
     ny = N
-    import numpy as np
     Lx = nx*dc
     Ly = ny*dc*np.sqrt(3)/2
     nVertLevels=1
@@ -58,7 +61,7 @@ for p in range(4,8):
     ymin = min(yEdge)
     k=0
     pi2 = 2.0*np.pi
-    IC=6
+    IC=5
     # Create initial conditions for sin(x)*sin(y)
     if IC==1:
         kux=1; kuy=2; kvx=2; kvy=3; 
@@ -195,11 +198,7 @@ for p in range(4,8):
         vyy = -(kvy*pi2/Ly)**2*v
     elif IC==5:
         # Create initial conditions for grid scale noise in y ONLY:
-        #kvy=N/2; pi2 = 2.0*np.pi; vmax = 0.1
-# original for testing:
-        #kvy=8; pi2 = 2.0*np.pi; vmax = 1.0
-# newer:
-        kvy=1; pi2 = 2.0*np.pi; vmax = 1.0
+        kvy=4; pi2 = 2.0*np.pi; vmax = 0.1
         #nu2 = 1000
         tDay = 1
         tSec = tDay*86400
@@ -207,12 +206,12 @@ for p in range(4,8):
         #print('kvy',kvy,'Ly',Ly,'kvy*pi2/Ly',kvy*pi2/Ly)
         #print('nu2',nu2,'tDay',tDay,'exp(-nu2 * (kvy*pi2/Ly)**2 *tSec)',np.exp(-nu2 * (kvy*pi2/Ly)**2 *tSec) )
         #print('set nu4 to {:e}'.format(nu2 * (kvy*pi2/Ly)**-2 ))
-        print('yEdge',yEdge)
-        print('ymin',ymin)
+        #print('yEdge',yEdge)
+        #print('ymin',ymin)
 
         u = 0.0*xEdge[:]
         v = vmax * np.cos( kvy*pi2/Ly*(yEdge[:] - ymin)  )
-        print('v',v[0:16])
+        #print('v',v[0:16])
         ux= 0*xCell[:]
         vy=-vmax * kvy*pi2/Ly* \
             np.sin( kvy*pi2/Ly*(yCell[:] - ymin)  )
@@ -245,6 +244,7 @@ for p in range(4,8):
         uyy = 0.0*xEdge[:]
         vxx = 0.0*xEdge[:]
         vyy = 0.0*xEdge[:]
+
     zonalVelocityEdge[:,k] = u
     meridionalVelocityEdge[:,k] = v
     normalVelocity[:,k] = \
